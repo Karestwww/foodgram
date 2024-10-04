@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -14,9 +15,9 @@ class User(AbstractUser):
         choices=Role.choices,
         default=Role.USER
     )
-    first_name = models.CharField(max_length=254)
-    last_name = models.CharField(max_length=254)
-    username = models.CharField(max_length=254)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=254, unique=True)
 
     REQUIRED_FIELDS = ['first_name', 'last_name', 'username', 'email']
@@ -33,15 +34,17 @@ class User(AbstractUser):
 class Tag(models.Model):
     '''Модель тега рецепта.'''
     name = models.CharField(
-        max_length=256,
-        default=None,
-        verbose_name='Название'
+        max_length=32,
+        verbose_name='Название тега'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=32,
         unique=True,
         verbose_name='Слаг'
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'тег'
@@ -52,15 +55,16 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     '''Модель ингредиента.'''
     name = models.CharField(
-        max_length=256,
-        default=None,
+        max_length=128,
         verbose_name='Название'
     )
     unit_measure = models.CharField(
-        max_length=50,
-        default=None,
+        max_length=64,
         verbose_name='Единица измерения'
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'ингредиент'
@@ -78,32 +82,35 @@ class Recipe(models.Model):
         related_name='recipes'
     )
     name = models.CharField(max_length=256, verbose_name='Название рецепта')
-    image = ''
-    description = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name='Описание блюда'
+    image = models.ImageField(
+        upload_to='recipes/',
+        verbose_name='Фото блюда',
     )
-    ingredient = models.ManyToManyField(
+    text = models.TextField(
+        verbose_name='Описание блюда',
+    )
+    ingredients = models.ManyToManyField(
         Ingredient,
         related_name='recipes',
         verbose_name='Ингредиент'
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
         verbose_name='Тег'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
+        validators=(MinValueValidator(1),),
         verbose_name='Время приготовления в минутах'
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('name',)
+        ordering = ('id',)
 
 
 class Chosen(models.Model):
@@ -112,7 +119,7 @@ class Chosen(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='recipes'
+        related_name='chosen'
     )
     recipe = models.ManyToManyField(
         Recipe,
@@ -126,13 +133,13 @@ class Chosen(models.Model):
         ordering = ('recipe', 'author')
 
 
-class Shopping_list(models.Model):
+class ShoppingList(models.Model):
     '''Модель списка покупок.'''
     author = models.ForeignKey(
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='recipes'
+        related_name='shopping_list'
     )
     recipe = models.ManyToManyField(
         Recipe,
