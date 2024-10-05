@@ -1,4 +1,4 @@
-Находясь в папке infra, выполните команду docker-compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
+Находясь в папке infra, выполните команду docker compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
 
 По адресу http://localhost изучите фронтенд веб-приложения, а по адресу http://localhost/api/docs/ — спецификацию API.
 
@@ -82,3 +82,35 @@ foodgram_backend
 Два приложения
 api()
 recipes()
+
+
+
+Требуемые urls
+http://localhost/api/users/
+http://localhost/api/users/
+http://localhost/api/users/{id}/
+http://localhost/api/users/me/
+http://localhost/api/users/me/avatar/
+http://localhost/api/users/me/avatar/
+http://localhost/api/users/set_password/
+http://localhost/api/auth/token/login/
+http://localhost/api/auth/token/logout/
+http://localhost/api/tags/
+http://localhost/api/tags/{id}/
+http://localhost/api/recipes/
+http://localhost/api/recipes/
+http://localhost/api/recipes/{id}/
+http://localhost/api/recipes/{id}/
+http://localhost/api/recipes/{id}/
+http://localhost/api/recipes/{id}/get-link/
+http://localhost/api/recipes/download_shopping_cart/
+http://localhost/api/recipes/{id}/shopping_cart/
+http://localhost/api/recipes/{id}/shopping_cart/
+http://localhost/api/recipes/{id}/favorite/
+http://localhost/api/recipes/{id}/favorite/
+http://localhost/api/users/subscriptions/
+http://localhost/api/users/{id}/subscribe/
+http://localhost/api/users/{id}/subscribe/
+http://localhost/api/ingredients/
+http://localhost/api/ingredients/{id}/
+
