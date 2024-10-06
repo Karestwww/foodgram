@@ -3,9 +3,26 @@ from api.serializers import (TagSerializer,
                              IngredientSerializer,
                              RecipeSerializer,
                              ChosenSerializer,
+                             SubscribeSerializer,
                              ShoppingListSerializer)
-from recipes.models import Tag, Ingredient, Recipe, Chosen, ShoppingList
+from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 from rest_framework.viewsets import ModelViewSet
+
+
+class UsersViewSet(ModelViewSet):
+    """Модель пользователя."""
+    queryset = User.objects.all()
+
+
+class UserInfoViewSet(ModelViewSet):
+    """Информация о пользователе."""
+    queryset = User.objects.all()
+
+    def get_current_user_info(self, request):
+        pass
+
+    def current_user_avatar(self, request):
+        pass
 
 
 class TagsViewSet(ModelViewSet):
@@ -41,3 +58,10 @@ class ShoppingsListViewSet(ModelViewSet):
 
     queryset = ShoppingList.objects.all()
     serializer_class = ShoppingListSerializer
+
+
+class SubscribeViewSet(ModelViewSet):
+    """По модели POST все стандартные виды запросов через viewsets."""
+
+    queryset = Subscribe.objects.all()
+    serializer_class = SubscribeSerializer

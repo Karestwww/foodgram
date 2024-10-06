@@ -5,7 +5,7 @@ from rest_framework.serializers import (CurrentUserDefault,
                                         ValidationError)
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import Tag, Ingredient, Recipe, Chosen, ShoppingList
+from recipes.models import Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 
 User = get_user_model()
 
@@ -27,4 +27,8 @@ class ChosenSerializer(ModelSerializer):
 
 
 class ShoppingListSerializer(ModelSerializer):
+    pass
+
+
+class SubscribeSerializer(ModelSerializer):
     pass

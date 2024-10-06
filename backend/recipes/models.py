@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -131,6 +132,21 @@ class Chosen(models.Model):
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
         ordering = ('recipe', 'author')
+
+
+class Subscribe(models.Model):
+    '''Модель подписок пользователя.'''
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор рецепта',
+        on_delete=models.CASCADE,
+        related_name='chosen'
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ('author',)
 
 
 class ShoppingList(models.Model):

@@ -86,31 +86,23 @@ recipes()
 
 
 Требуемые urls
-http://localhost/api/users/
-http://localhost/api/users/
-http://localhost/api/users/{id}/
-http://localhost/api/users/me/
-http://localhost/api/users/me/avatar/
-http://localhost/api/users/me/avatar/
+http://localhost/api/users/ - сделан url
+http://localhost/api/users/{id}/ - сделан url
+http://localhost/api/users/me/ - сделан url
+http://localhost/api/users/me/avatar/ - сделан url
 http://localhost/api/users/set_password/
 http://localhost/api/auth/token/login/
 http://localhost/api/auth/token/logout/
-http://localhost/api/tags/
-http://localhost/api/tags/{id}/
-http://localhost/api/recipes/
-http://localhost/api/recipes/
-http://localhost/api/recipes/{id}/
-http://localhost/api/recipes/{id}/
-http://localhost/api/recipes/{id}/
-http://localhost/api/recipes/{id}/get-link/
-http://localhost/api/recipes/download_shopping_cart/
-http://localhost/api/recipes/{id}/shopping_cart/
-http://localhost/api/recipes/{id}/shopping_cart/
-http://localhost/api/recipes/{id}/favorite/
-http://localhost/api/recipes/{id}/favorite/
-http://localhost/api/users/subscriptions/
-http://localhost/api/users/{id}/subscribe/
-http://localhost/api/users/{id}/subscribe/
-http://localhost/api/ingredients/
-http://localhost/api/ingredients/{id}/
+http://localhost/api/tags/ - сделан url
+http://localhost/api/tags/{id}/ - сделан url
+http://localhost/api/recipes/ - сделан url
+http://localhost/api/recipes/{id}/ - сделан url
+http://localhost/api/recipes/{id}/get-link/ - сделан url
+http://localhost/api/recipes/download_shopping_cart/ - сделан url
+http://localhost/api/recipes/{id}/shopping_cart/ - сделан url
+http://localhost/api/recipes/{id}/favorite/ - сделан url
+http://localhost/api/users/subscriptions/ - сделан url
+http://localhost/api/users/{id}/subscribe/ - сделан url
+http://localhost/api/ingredients/ - сделан url
+http://localhost/api/ingredients/{id}/ - сделан url
 
