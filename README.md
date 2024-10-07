@@ -90,9 +90,9 @@ http://localhost/api/users/ - сделан url
 http://localhost/api/users/{id}/ - сделан url
 http://localhost/api/users/me/ - сделан url
 http://localhost/api/users/me/avatar/ - сделан url
-http://localhost/api/users/set_password/
-http://localhost/api/auth/token/login/
-http://localhost/api/auth/token/logout/
+http://localhost/api/users/set_password/ - сделан url
+http://localhost/api/auth/token/login/ - сделан url
+http://localhost/api/auth/token/logout/ - сделан url
 http://localhost/api/tags/ - сделан url
 http://localhost/api/tags/{id}/ - сделан url
 http://localhost/api/recipes/ - сделан url
@@ -106,3 +106,30 @@ http://localhost/api/users/{id}/subscribe/ - сделан url
 http://localhost/api/ingredients/ - сделан url
 http://localhost/api/ingredients/{id}/ - сделан url
 
+
+pip install djoser
+INSTALLED_APPS = [
+    ...
+    'djoser',
+    'rest_framework.authtoken',
+]
+
+REST_FRAMEWORK = {
+    ...
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/v1/', include(router.urls)),
+    path('api/auth/', include('djoser.urls.authtoken')),
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}

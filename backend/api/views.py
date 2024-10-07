@@ -4,7 +4,10 @@ from api.serializers import (TagSerializer,
                              RecipeSerializer,
                              ChosenSerializer,
                              SubscribeSerializer,
+                             UserSerializer,
+                             UserCreateSerializer,
                              ShoppingListSerializer)
+from api.paginators import StandardResultsSetPagination
 from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 from rest_framework.viewsets import ModelViewSet
 
@@ -12,11 +15,20 @@ from rest_framework.viewsets import ModelViewSet
 class UsersViewSet(ModelViewSet):
     """Модель пользователя."""
     queryset = User.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = StandardResultsSetPagination
+
+
+class UserCreateViewSet(ModelViewSet):
+    """Модель пользователя."""
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
 
 
 class UserInfoViewSet(ModelViewSet):
     """Информация о пользователе."""
     queryset = User.objects.all()
+    serializer_class = UserSerializer
 
     def get_current_user_info(self, request):
         pass

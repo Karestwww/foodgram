@@ -20,8 +20,14 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=254, unique=True)
-
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'username', 'email']
+    is_subscribed = models.BooleanField()
+    avatar = models.ImageField(
+        upload_to='avatar/',
+        verbose_name='Фото аватара',
+    )
+    password = models.CharField(max_length=254)
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username', 'password']
+    USERNAME_FIELD = 'email'
 
     def __str__(self):
         return self.username
@@ -29,7 +35,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('role', 'id')
+        ordering = ('username',)
 
 
 class Tag(models.Model):
@@ -70,7 +76,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ('name',)
+        ordering = ('name', 'unit_measure')
 
 
 class Recipe(models.Model):
@@ -80,7 +86,7 @@ class Recipe(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='recipes'
+#        related_name='recipes'
     )
     name = models.CharField(max_length=256, verbose_name='Название рецепта')
     image = models.ImageField(
@@ -92,12 +98,12 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        related_name='recipes',
+#        related_name='recipes',
         verbose_name='Ингредиент'
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipes',
+#        related_name='recipes',
         verbose_name='Тег'
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -111,7 +117,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('id',)
+        ordering = ('id', 'name')
 
 
 class Chosen(models.Model):
@@ -120,18 +126,18 @@ class Chosen(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='chosen'
+#        related_name='chosen'
     )
     recipe = models.ManyToManyField(
         Recipe,
-        related_name='chosen',
+#        related_name='chosen',
         verbose_name='Рецепт'
     )
 
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
-        ordering = ('recipe', 'author')
+        ordering = ('author',)
 
 
 class Subscribe(models.Model):
@@ -140,13 +146,13 @@ class Subscribe(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='chosen'
+#        related_name='chosen'
     )
 
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ('author',)
+        ordering = ('author', 'id')
 
 
 class ShoppingList(models.Model):
@@ -155,7 +161,7 @@ class ShoppingList(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-        related_name='shopping_list'
+#        related_name='shopping_list'
     )
     recipe = models.ManyToManyField(
         Recipe,
@@ -166,4 +172,4 @@ class ShoppingList(models.Model):
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
-        ordering = ('recipe', 'author')
+        ordering = ('author',)
