@@ -20,14 +20,14 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(max_length=254, unique=True)
-    is_subscribed = models.BooleanField()
+    is_subscribed = models.BooleanField(default=False)
     avatar = models.ImageField(
         upload_to='avatar/',
         verbose_name='Фото аватара',
     )
     password = models.CharField(max_length=254)
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'username', 'password']
-    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'password']
+    USERNAME_FIELD = 'username'
 
     def __str__(self):
         return self.username

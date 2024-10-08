@@ -36,8 +36,8 @@ urlpatterns = [
 #    path('recipes/<int:id>/favorite/', ShoppingsListViewSet.as_view(), name='favorite'),
 #    path('recipes/<int:id>/shopping_cart/', ShoppingsListViewSet.as_view(), name='shopping_cart'),
 #    path('recipes/download_shopping_cart/', ShoppingsListViewSet.as_view(), name='download_shopping_cart'),
-#    path('auth/', include('djoser.urls')),  # Работа с пользователями
-#    path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
+    path('auth/', include('djoser.urls')),  # Работа с пользователями
+    path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
     path('users/', include(patterns_user)),
 #    path('', include(router.urls, 'app_name')),
 ]
