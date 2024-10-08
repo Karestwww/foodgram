@@ -26,8 +26,8 @@ class User(AbstractUser):
         verbose_name='Фото аватара',
     )
     password = models.CharField(max_length=254)
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'password']
-    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
+    USERNAME_FIELD = 'email'
 
     def __str__(self):
         return self.username

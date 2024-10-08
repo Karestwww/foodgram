@@ -7,9 +7,9 @@ from rest_framework.serializers import (CurrentUserDefault,
                                         ChoiceField)
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
+from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 
-User = get_user_model()
+#User = get_user_model()
 
 class UserSerializer(ModelSerializer):
 

@@ -10,13 +10,33 @@ from api.serializers import (TagSerializer,
 from api.paginators import StandardResultsSetPagination
 from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.authentication import BaseAuthentication
+from rest_framework import exceptions
 
+'''
+class ExampleAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        email = request.get('email')
+        if not email:
+            return None
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise exceptions.AuthenticationFailed('No such user')
+        return (user, None)
+'''
 
 class UsersViewSet(ModelViewSet):
     """Модель пользователя."""
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    http_method_names = ['get', 'post']
     pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserSerializer
+        else:
+            return UserCreateSerializer
 
 
 class UserCreateViewSet(ModelViewSet):
