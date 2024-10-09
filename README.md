@@ -86,50 +86,23 @@ recipes()
 
 
 Требуемые urls
-http://localhost/api/users/ - сделан url
-http://localhost/api/users/{id}/ - сделан url
-http://localhost/api/users/me/ - сделан url
-http://localhost/api/users/me/avatar/ - сделан url
-http://localhost/api/users/set_password/ - сделан url
-http://localhost/api/auth/token/login/ - сделан url
-http://localhost/api/auth/token/logout/ - сделан url
-http://localhost/api/tags/ - сделан url
-http://localhost/api/tags/{id}/ - сделан url
-http://localhost/api/recipes/ - сделан url
-http://localhost/api/recipes/{id}/ - сделан url
-http://localhost/api/recipes/{id}/get-link/ - сделан url
-http://localhost/api/recipes/download_shopping_cart/ - сделан url
-http://localhost/api/recipes/{id}/shopping_cart/ - сделан url
-http://localhost/api/recipes/{id}/favorite/ - сделан url
-http://localhost/api/users/subscriptions/ - сделан url
-http://localhost/api/users/{id}/subscribe/ - сделан url
-http://localhost/api/ingredients/ - сделан url
-http://localhost/api/ingredients/{id}/ - сделан url
+http://localhost:8000/api/users/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/users/{id}/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/users/me/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/users/me/avatar/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/users/set_password/ - сделан url
+http://localhost:8000/api/auth/token/login/ - сделан url  - работает, постмен прошел
+http://localhost:8000/api/auth/token/logout/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/tags/ - сделан url
+http://localhost:8000/api/tags/{id}/ - сделан url
+http://localhost:8000/api/recipes/ - сделан url
+http://localhost:8000/api/recipes/{id}/ - сделан url
+http://localhost:8000/api/recipes/{id}/get-link/ - сделан url
+http://localhost:8000/api/recipes/download_shopping_cart/ - сделан url
+http://localhost:8000/api/recipes/{id}/shopping_cart/ - сделан url
+http://localhost:8000/api/recipes/{id}/favorite/ - сделан url
+http://localhost:8000/api/users/subscriptions/ - сделан url
+http://localhost:8000/api/users/{id}/subscribe/ - сделан url
+http://localhost:8000/api/ingredients/ - сделан url
+http://localhost:8000/api/ingredients/{id}/ - сделан url
 
-
-pip install djoser
-INSTALLED_APPS = [
-    ...
-    'djoser',
-    'rest_framework.authtoken',
-]
-
-REST_FRAMEWORK = {
-    ...
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-}
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
-    path('api/auth/', include('djoser.urls.authtoken')),
-]
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-}

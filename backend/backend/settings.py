@@ -122,6 +122,12 @@ USE_TZ = True
 
 AUTH_USER_MODEL = 'recipes.User'
 
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_USERNAME_REQUIRED = False
+
 DATE_FORMAT = 'd E Y'
 
 # Static files (CSS, JavaScript, Images)

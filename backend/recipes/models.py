@@ -23,6 +23,8 @@ class User(AbstractUser):
     is_subscribed = models.BooleanField(default=False)
     avatar = models.ImageField(
         upload_to='avatar/',
+        null=True,
+        default=None,
         verbose_name='Фото аватара',
     )
     password = models.CharField(max_length=254)

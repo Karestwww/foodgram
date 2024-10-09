@@ -5,6 +5,7 @@ from api.serializers import (TagSerializer,
                              ChosenSerializer,
                              SubscribeSerializer,
                              UserSerializer,
+                             AvatarSerializer,
                              UserCreateSerializer,
                              ShoppingListSerializer)
 from api.paginators import StandardResultsSetPagination
@@ -12,19 +13,11 @@ from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
+from rest_framework.decorators import action
 
-'''
-class ExampleAuthentication(BaseAuthentication):
-    def authenticate(self, request):
-        email = request.get('email')
-        if not email:
-            return None
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise exceptions.AuthenticationFailed('No such user')
-        return (user, None)
-'''
 
 class UsersViewSet(ModelViewSet):
     """Модель пользователя."""
@@ -47,14 +40,40 @@ class UserCreateViewSet(ModelViewSet):
 
 class UserInfoViewSet(ModelViewSet):
     """Информация о пользователе."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    http_method_names = ['get', 'put', 'delete']
 
+    @action(methods=['get'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='me')
     def get_current_user_info(self, request):
-        pass
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=HTTP_200_OK)
+    
 
+
+class AvatarViewSet(ModelViewSet):
+    """Аватар."""
+
+    queryset = User.objects.all()
+    serializer_class = AvatarSerializer
+    http_method_names = ['put', 'delete']
+
+    @action(methods=['put', 'delete'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='me/avatar')
     def current_user_avatar(self, request):
-        pass
+
+        if request.method == 'PUT':
+            serializer = AvatarSerializer(request.user, data=request.data)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
+        request.user.avatar.delete()
+        request.user.avatar = None
+        request.user.save()
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 class TagsViewSet(ModelViewSet):

@@ -1,9 +1,10 @@
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 
 
-class StandardResultsSetPagination(PageNumberPagination):
+class StandardResultsSetPagination(LimitOffsetPagination):
     """Пагинатор для моделей модуля."""
 
     page_size = 6
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
+    default_limit = page_size
+    max_limit = page_size
+#    max_page_size = 1000

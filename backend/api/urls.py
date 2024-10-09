@@ -6,6 +6,7 @@ from api.views import (TagsViewSet,
                     ChosensViewSet,
                     UsersViewSet,
                     UserInfoViewSet,
+                    AvatarViewSet,
                     SubscribeViewSet,
                     UserCreateViewSet,
                     ShoppingsListViewSet)
@@ -23,10 +24,10 @@ app_name = 'api'
 patterns_user = [
 #    path('', UsersViewSet.as_view({'get': 'list'}), name='users'),  # удалить, скорее всего дублирование пути
 #    path('', UserCreateViewSet.as_view({'post': 'create'}), name='users_create'),  # удалить, скорее всего дублирование пути
-#    path('me/', UserInfoViewSet.as_view({'get': 'get_current_user_info',}), name='current_user'),
-#    path('me/avatar/',
-#         UserInfoViewSet.as_view({'put': 'current_user_avatar',
-#                                  'delete': 'current_user_avatar'}), name='current_user_avatar'),
+    path('me/avatar/',
+         AvatarViewSet.as_view({'put': 'current_user_avatar',
+                                  'delete': 'current_user_avatar'}), name='current_user_avatar'),
+    path('me/', UserInfoViewSet.as_view({'get': 'get_current_user_info',}), name='current_user'),
 #    re_path(r'^subscri\B', SubscribeViewSet.as_view(), name='subscribe'),
 #    path('set_password/', UserInfoViewSet.as_view(), name='set_password'),
 ] 
@@ -38,6 +39,6 @@ urlpatterns = [
 #    path('recipes/download_shopping_cart/', ShoppingsListViewSet.as_view(), name='download_shopping_cart'),
 #    path('auth/', include('djoser.urls')),  # Работа с пользователями
     re_path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
-#    path('users/', include(patterns_user)),
+    path('users/', include(patterns_user)),
     path('', include(router.urls)),
 ]
