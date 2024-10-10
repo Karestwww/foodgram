@@ -123,6 +123,7 @@ class RecipesViewSet(ModelViewSet):
 
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class ChosensViewSet(ModelViewSet):

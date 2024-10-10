@@ -14,7 +14,7 @@ from api.views import (TagsViewSet,
 
 router = DefaultRouter()
 router.register('tags', TagsViewSet, basename='tag')
-#router.register('recipes', RecipesViewSet, basename='recipe')
+router.register('recipes', RecipesViewSet, basename='recipe')
 router.register('ingredients', IngredientsViewSet, basename='ingredient')
 router.register('users', UsersViewSet, basename='users')
 

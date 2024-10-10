@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
 
 
 class User(AbstractUser):
@@ -73,9 +71,6 @@ class Ingredient(models.Model):
         max_length=64,
         verbose_name='Единица измерения'
     )
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name',)
-    search_fields = ('name',)
 
     def __str__(self):
         return self.name
@@ -127,17 +122,38 @@ class Recipe(models.Model):
         ordering = ('id', 'name')
 
 
+class Amount(models.Model):
+    '''Модель для кол-ва ингридиентов в рецепте'''
+    recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE,)
+    ingredients = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
+    amounts = models.PositiveSmallIntegerField(
+        validators=(MinValueValidator(1),),
+        verbose_name='Кол-во ингридиента'
+    )
+
+    def __str__(self):
+        return f'{self.recipes} {self.ingredients} {self.amounts}'
+
+    class Meta:
+        verbose_name = 'рецепт'
+        verbose_name_plural = 'Рецепты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipes', 'ingredients'],
+                name='unique_ingredients')]
+
+
 class Chosen(models.Model):
     '''Модель избранных рецептов.'''
     author = models.ForeignKey(
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-#        related_name='chosen'
+        related_name='favorited'
     )
     recipe = models.ManyToManyField(
         Recipe,
-#        related_name='chosen',
+        related_name='favorited',
         verbose_name='Рецепт'
     )
 
@@ -168,11 +184,11 @@ class ShoppingList(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-#        related_name='shopping_list'
+        related_name='in_shopping_cart'
     )
     recipe = models.ManyToManyField(
         Recipe,
-        related_name='shopping_list',
+        related_name='in_shopping_cart',
         verbose_name='Рецепт'
     )
 

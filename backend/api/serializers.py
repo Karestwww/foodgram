@@ -6,14 +6,19 @@ from rest_framework.serializers import (CurrentUserDefault,
                                         ModelSerializer,
                                         SlugRelatedField,
                                         ValidationError,
+                                        SerializerMethodField,
+                                        ImageField,
+                                        RegexField,
+                                        PrimaryKeyRelatedField,
+                                        ReadOnlyField,
                                         ChoiceField)
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
+from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe, Amount
 
 #User = get_user_model()
 
-class Base64ImageField(serializers.ImageField):
+class Base64ImageField(ImageField):
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -28,6 +33,14 @@ class AvatarSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class ImageRecipieSerializer(ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('image',)
 
 
 class UserPasswordSerializer(ModelSerializer):
@@ -45,7 +58,7 @@ class UserSerializer(ModelSerializer):
 
 
 class UserCreateSerializer(ModelSerializer):
-    username = serializers.RegexField(
+    username = RegexField(
         regex=r'^[\w.@+-]+$',
         max_length=150,
         required=True,
@@ -101,8 +114,41 @@ class IngredientSerializer(ModelSerializer):
         read_only_fields = ('id', 'name', 'measurement_unit')
 
 
+class AmountSerializer(ModelSerializer):
+
+    id = ReadOnlyField(source='ingredients.id')
+    name = ReadOnlyField(source='ingredients.name')
+    measurement_unit = ReadOnlyField(source='ingredients.measurement_unit')
+    ingredients = ReadOnlyField(source='ingredients.name')
+
+    class Meta:
+        model = Amount
+        fields = ('id', 'name', 'measurement_unit', 'ingredients')
+#        read_only_fields = ('amounts',)
+
+
 class RecipeSerializer(ModelSerializer):
-    pass
+
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
+    tags = TagSerializer(many=True, read_only=True)
+    author = UserSerializer()
+    ingredients = AmountSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited', 'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
+#        read_only_fields = ('id', 'author', 'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time')
+
+    def get_is_favorited(self, obj):
+        if self.context.get('request').user:
+            return False
+        return Chosen.objects.filter(recipe=obj).exists()
+        
+    def get_is_in_shopping_cart(self, obj):
+        if self.context.get('request').user:
+            return False
+        return Chosen.objects.filter(recipe=obj).exists()
 
 
 class ChosenSerializer(ModelSerializer):
