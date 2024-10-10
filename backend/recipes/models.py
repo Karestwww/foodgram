@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 class User(AbstractUser):
@@ -67,10 +69,13 @@ class Ingredient(models.Model):
         max_length=128,
         verbose_name='Название'
     )
-    unit_measure = models.CharField(
+    measurement_unit = models.CharField(
         max_length=64,
         verbose_name='Единица измерения'
     )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
+    search_fields = ('name',)
 
     def __str__(self):
         return self.name
@@ -78,7 +83,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ('name', 'unit_measure')
+        ordering = ('name', 'measurement_unit')
 
 
 class Recipe(models.Model):

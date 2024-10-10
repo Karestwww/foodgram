@@ -19,6 +19,8 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_204_NO_CONTENT
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 class UsersViewSet(ModelViewSet):
@@ -100,6 +102,7 @@ class TagsViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     http_method_names = ['get']
+    filterset_fields = ('name',)
 #    permission_classes = (IsAdminOrReadOnly, )
 #    pagination_class = StandardResultsSetPagination
 
@@ -109,6 +112,10 @@ class IngredientsViewSet(ModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    http_method_names = ['get']
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
+    search_fields = ('name',)
 
 
 class RecipesViewSet(ModelViewSet):
