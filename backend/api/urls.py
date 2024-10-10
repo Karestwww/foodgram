@@ -9,10 +9,11 @@ from api.views import (TagsViewSet,
                     AvatarViewSet,
                     SubscribeViewSet,
                     UserCreateViewSet,
+                    UserPasswordViewSet,
                     ShoppingsListViewSet)
 
 router = DefaultRouter()
-#router.register('tags', TagsViewSet, basename='tag')
+router.register('tags', TagsViewSet, basename='tag')
 #router.register('recipes', RecipesViewSet, basename='recipe')
 #router.register('ingredients', IngredientsViewSet, basename='ingredient')
 router.register('users', UsersViewSet, basename='users')
@@ -29,7 +30,7 @@ patterns_user = [
                                   'delete': 'current_user_avatar'}), name='current_user_avatar'),
     path('me/', UserInfoViewSet.as_view({'get': 'get_current_user_info',}), name='current_user'),
 #    re_path(r'^subscri\B', SubscribeViewSet.as_view(), name='subscribe'),
-#    path('set_password/', UserInfoViewSet.as_view(), name='set_password'),
+#    path('set_password/', UserPasswordViewSet.as_view({'post': 'user_set_password',}), name='set_password'),
 ] 
 
 urlpatterns = [
@@ -37,8 +38,8 @@ urlpatterns = [
 #    path('recipes/<int:id>/favorite/', ShoppingsListViewSet.as_view(), name='favorite'),
 #    path('recipes/<int:id>/shopping_cart/', ShoppingsListViewSet.as_view(), name='shopping_cart'),
 #    path('recipes/download_shopping_cart/', ShoppingsListViewSet.as_view(), name='download_shopping_cart'),
-#    path('auth/', include('djoser.urls')),  # Работа с пользователями
-    re_path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
     path('users/', include(patterns_user)),
+    path('', include('djoser.urls')),  # Работа с пользователями
+    re_path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
     path('', include(router.urls)),
 ]

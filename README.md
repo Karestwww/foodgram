@@ -90,7 +90,7 @@ http://localhost:8000/api/users/ - сделан url - работает, пост
 http://localhost:8000/api/users/{id}/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/users/me/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/users/me/avatar/ - сделан url - работает, постмен прошел
-http://localhost:8000/api/users/set_password/ - сделан url
+http://localhost:8000/api/users/set_password/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/auth/token/login/ - сделан url  - работает, постмен прошел
 http://localhost:8000/api/auth/token/logout/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/tags/ - сделан url

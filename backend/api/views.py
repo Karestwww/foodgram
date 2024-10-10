@@ -7,15 +7,17 @@ from api.serializers import (TagSerializer,
                              UserSerializer,
                              AvatarSerializer,
                              UserCreateSerializer,
+                             UserPasswordSerializer,
                              ShoppingListSerializer)
 from api.paginators import StandardResultsSetPagination
+from api.permissions import IsAdminOrReadOnly
 from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_204_NO_CONTENT
 from rest_framework.decorators import action
 
 
@@ -51,7 +53,23 @@ class UserInfoViewSet(ModelViewSet):
         if request.method == 'GET':
             serializer = UserSerializer(request.user)
             return Response(serializer.data, status=HTTP_200_OK)
-    
+
+
+class UserPasswordViewSet(ModelViewSet):
+    """Установить новый пароль."""
+
+    queryset = User.objects.all()
+    serializer_class = UserPasswordSerializer
+    http_method_names = ['post']
+
+    @action(methods=['post'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='set_password')
+    def user_set_password(self, request):
+        if request.method == 'POST':
+            serializer = UserPasswordSerializer(request.user, data=request.data)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data, status=HTTP_204_NO_CONTENT)
 
 
 class AvatarViewSet(ModelViewSet):
@@ -81,6 +99,9 @@ class TagsViewSet(ModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    http_method_names = ['get']
+#    permission_classes = (IsAdminOrReadOnly, )
+#    pagination_class = StandardResultsSetPagination
 
 
 class IngredientsViewSet(ModelViewSet):

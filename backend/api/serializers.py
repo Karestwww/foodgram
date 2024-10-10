@@ -23,20 +23,18 @@ class Base64ImageField(serializers.ImageField):
 
 
 class AvatarSerializer(ModelSerializer):
-    avatar = Base64ImageField()  # required=False, allow_null=True)
-    '''avatar_url = serializers.SerializerMethodField(
-        'get_image_url',
-        read_only=True,
-    )'''
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
         fields = ('avatar',)
 
-    '''def get_image_url(self, obj):
-        if obj.avatar:
-            return obj.avatar.url
-        return None'''
+
+class UserPasswordSerializer(ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('password',)
 
 
 class UserSerializer(ModelSerializer):
@@ -88,7 +86,11 @@ class UserCreateSerializer(ModelSerializer):
 
 
 class TagSerializer(ModelSerializer):
-    pass
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'slug')
+        read_only_fields = ('name', 'slug')
 
 
 class IngredientSerializer(ModelSerializer):
