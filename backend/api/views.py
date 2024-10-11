@@ -7,6 +7,7 @@ from api.serializers import (TagSerializer,
                              UserSerializer,
                              AvatarSerializer,
                              UserCreateSerializer,
+                             CreateRecipeSerializer,
                              UserPasswordSerializer,
                              ShoppingListSerializer)
 from api.paginators import StandardResultsSetPagination
@@ -15,7 +16,7 @@ from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_204_NO_CONTENT
 from rest_framework.decorators import action
@@ -23,11 +24,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 
+
 class UsersViewSet(ModelViewSet):
     """Модель пользователя."""
     queryset = User.objects.all()
     http_method_names = ['get', 'post']
     pagination_class = StandardResultsSetPagination
+    permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -124,6 +127,12 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        else:
+            return CreateRecipeSerializer
 
 
 class ChosensViewSet(ModelViewSet):

@@ -23,8 +23,9 @@ app_name = 'api'
 
 
 patterns_user = [
-#    path('', UsersViewSet.as_view({'get': 'list'}), name='users'),  # удалить, скорее всего дублирование пути
-#    path('', UserCreateViewSet.as_view({'post': 'create'}), name='users_create'),  # удалить, скорее всего дублирование пути
+    path('', UsersViewSet.as_view({'get': 'list'}), name='users_'),  # удалить, скорее всего дублирование пути
+#    path('<int:pk>', UsersViewSet.as_view({'get': 'retrieve'}), name='user'),  # удалить, скорее всего дублирование пути
+    path('', UserCreateViewSet.as_view({'post': 'create'}), name='users_create'),  # удалить, скорее всего дублирование пути
     path('me/avatar/',
          AvatarViewSet.as_view({'put': 'current_user_avatar',
                                   'delete': 'current_user_avatar'}), name='current_user_avatar'),

@@ -58,17 +58,7 @@ class UserSerializer(ModelSerializer):
 
 
 class UserCreateSerializer(ModelSerializer):
-    username = RegexField(
-        regex=r'^[\w.@+-]+$',
-        max_length=150,
-        required=True,
-        help_text='Тербуется  не более 150 символов. '
-                  'Только буквы, цифры и @/./+/-/_.',
-        error_messages={
-            'invalid': ('Значение должны состоять только из буквы или '
-                        'цифры или символов подчёркивания или дефисов.'),
-        }
-    )
+#    username = RegexField(regex=r'^[\w.@+-]+\Z')
 
     class Meta:
         model = User
@@ -149,6 +139,17 @@ class RecipeSerializer(ModelSerializer):
         if self.context.get('request').user:
             return False
         return Chosen.objects.filter(recipe=obj).exists()
+
+
+class CreateRecipeSerializer(ModelSerializer):
+
+    ingredients = AmountSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
 
 
 class ChosenSerializer(ModelSerializer):
