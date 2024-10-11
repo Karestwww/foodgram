@@ -23,9 +23,9 @@ app_name = 'api'
 
 
 patterns_user = [
-    path('', UsersViewSet.as_view({'get': 'list'}), name='users_'),  # удалить, скорее всего дублирование пути
+#    path('', UsersViewSet.as_view({'get': 'list', 'post': 'create'}), name='users'),  # удалить, скорее всего дублирование пути
 #    path('<int:pk>', UsersViewSet.as_view({'get': 'retrieve'}), name='user'),  # удалить, скорее всего дублирование пути
-    path('', UserCreateViewSet.as_view({'post': 'create'}), name='users_create'),  # удалить, скорее всего дублирование пути
+#    path('', UsersViewSet.as_view({'post': 'create'}), name='users_create'),  # удалить, скорее всего дублирование пути
     path('me/avatar/',
          AvatarViewSet.as_view({'put': 'current_user_avatar',
                                   'delete': 'current_user_avatar'}), name='current_user_avatar'),
@@ -40,7 +40,7 @@ urlpatterns = [
 #    path('recipes/<int:id>/shopping_cart/', ShoppingsListViewSet.as_view(), name='shopping_cart'),
 #    path('recipes/download_shopping_cart/', ShoppingsListViewSet.as_view(), name='download_shopping_cart'),
     path('users/', include(patterns_user)),
+    path('', include(router.urls)),
     path('', include('djoser.urls')),  # Работа с пользователями
     re_path(r'^auth/', include('djoser.urls.authtoken')),  # Работа с токенами
-    path('', include(router.urls)),
 ]

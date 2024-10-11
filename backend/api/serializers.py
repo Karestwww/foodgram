@@ -141,9 +141,18 @@ class RecipeSerializer(ModelSerializer):
         return Chosen.objects.filter(recipe=obj).exists()
 
 
+class AmountCreateRecipeSerializer(ModelSerializer):
+
+    id = ReadOnlyField(source='ingredients.id')
+
+    class Meta:
+        model = Amount
+        fields = ('id', 'amounts')
+
+
 class CreateRecipeSerializer(ModelSerializer):
 
-    ingredients = AmountSerializer(many=True, read_only=True)
+    ingredients = AmountCreateRecipeSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     image = Base64ImageField()
 
@@ -151,6 +160,19 @@ class CreateRecipeSerializer(ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
 
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        for ingredient in ingredients_data:
+            Amount.objects.update_or_create(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount'])
+        #recipe.tags.set(tags_data)
+
+        Amount.objects.create(recipe=recipe, **ingredients_data, **tags_data)
+        return recipe
 
 class ChosenSerializer(ModelSerializer):
     pass
