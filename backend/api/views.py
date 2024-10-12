@@ -22,7 +22,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_204_NO_
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-
+from api.filters import RecipeFilter
 
 
 class UsersViewSet(ModelViewSet):
@@ -50,7 +50,7 @@ class UserInfoViewSet(ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['get', 'put', 'delete']
+    http_method_names = ['get']
 
     @action(methods=['get'], detail=False,
             permission_classes=[IsAuthenticated], url_path='me')
@@ -118,21 +118,22 @@ class IngredientsViewSet(ModelViewSet):
     http_method_names = ['get']
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name',)
-    search_fields = ('name',)
+#    search_fields = ('name',)
 
 
 class RecipesViewSet(ModelViewSet):
-    """По модели POST все стандартные виды запросов через viewsets."""
+    """По модели Recipe все стандартные виды запросов через viewsets."""
 
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeSerializer
-        else:
-            return CreateRecipeSerializer
+        return CreateRecipeSerializer
 
 
 class ChosensViewSet(ModelViewSet):

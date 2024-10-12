@@ -130,22 +130,22 @@ class Recipe(models.Model):
 
 class Amount(models.Model):
     '''Модель для кол-ва ингридиентов в рецепте'''
-    recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE,)
-    ingredients = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
-    amounts = models.PositiveSmallIntegerField(
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_ingredients')
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
+    amount = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1),),
         verbose_name='Кол-во ингридиента'
     )
 
     def __str__(self):
-        return f'{self.recipes} {self.ingredients} {self.amounts}'
+        return f'{self.recipe} {self.ingredient} {self.amount}'
 
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
         constraints = [
             models.UniqueConstraint(
-                fields=['recipes', 'ingredients'],
+                fields=['recipe', 'ingredient'],
                 name='unique_ingredients')]
 
 

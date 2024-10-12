@@ -35,7 +35,7 @@ patterns_user = [
 ] 
 
 urlpatterns = [
-#    path('recipes/<int:id>/get-link/', RecipesViewSet.as_view(), name='get-link'),
+    path('recipes/<int:id>/get-link/', RecipesViewSet.as_view(), name='get-link'),
 #    path('recipes/<int:id>/favorite/', ShoppingsListViewSet.as_view(), name='favorite'),
 #    path('recipes/<int:id>/shopping_cart/', ShoppingsListViewSet.as_view(), name='shopping_cart'),
 #    path('recipes/download_shopping_cart/', ShoppingsListViewSet.as_view(), name='download_shopping_cart'),
