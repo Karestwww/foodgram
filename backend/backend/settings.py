@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-y*g#$4qa4$qw3&tet0(a0bdz68rp2@j5_jw==*6w3$@@l)px56
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+DOMAIN = 'karestwww.servegame.com'
+
 ALLOWED_HOSTS = []
 
 

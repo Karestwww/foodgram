@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from api.serializers import (TagSerializer,
                              IngredientSerializer,
                              RecipeSerializer,
@@ -11,7 +11,8 @@ from api.serializers import (TagSerializer,
                              UserPasswordSerializer,
                              ShoppingListSerializer)
 from api.paginators import StandardResultsSetPagination
-from api.permissions import IsAdminOrReadOnly
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from backend.settings import DOMAIN
 from recipes.models import User, Tag, Ingredient, Recipe, Chosen, ShoppingList, Subscribe
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import BaseAuthentication
@@ -129,12 +130,18 @@ class RecipesViewSet(ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeSerializer
         return CreateRecipeSerializer
 
+    @action(detail=True, methods=['get'], url_path='get-link')
+    def get_link(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        url = f"{DOMAIN}/recipes/{recipe.id}/"
+        return Response({'short-link': url}, status=HTTP_200_OK)
 
 class ChosensViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""

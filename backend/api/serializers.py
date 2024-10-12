@@ -179,17 +179,30 @@ class CreateRecipeSerializer(ModelSerializer):
         ingredients = value
         if not ingredients:
             raise ValidationError(
-                {'ingredients': 'Нужно выбрать ингредиент!'})
+                {'ingredients': 'Ингридиент, обязательное поле!'})
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, name=item['id'])
             if ingredient in ingredients_list:
                 raise ValidationError(
-                    {'ingredients': 'Ингридиенты повторяются!'})
+                    {'ingredients': 'Дублирование ингридиентов запрещено!'})
             if int(item['amount']) <= 0:
                 raise ValidationError(
-                    {'amount': 'Количество должно быть больше 0!'})
+                    {'amount': 'Количество не меньше 1!'})
             ingredients_list.append(ingredient)
+        return value
+
+    def validate_tags(self, value):
+        tags = value
+        if not tags:
+            raise ValidationError(
+                {'tags': 'Тег, обязательное поле!'})
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise ValidationError(
+                    {'tags': 'Дублирование тегов запрещено!'})
+            tags_list.append(tag)
         return value
 
     def create(self, validated_data):
@@ -197,14 +210,18 @@ class CreateRecipeSerializer(ModelSerializer):
         tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags_data)
-        for ingredient in ingredients_data:
-            Amount.objects.update_or_create(
+        ingredients_to_create = [
+            Amount(
                 recipe=recipe,
                 ingredient=ingredient['id'],
-                amount=ingredient['amount'])
+                amount=ingredient['amount']
+            )
+            for ingredient in ingredients_data
+        ]
+        Amount.objects.bulk_create(ingredients_to_create)
         return recipe
 
-    def update(self, instance, validated_data):
+    '''def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         # Unless the application properly enforces that this field is
         # always set, the following could raise a `DoesNotExist`, which
@@ -213,7 +230,7 @@ class CreateRecipeSerializer(ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.ingredients.clear()  # данные обязательны, можно перезаписать
         instance.tags.clear()  # данные обязательны, можно перезаписать
-        instance.tags.set(ingredients_data)
+        instance.ingredients.set(ingredients_data)
         instance.tags.set(tags_data)
         instance.save()
         for ingredient in ingredients_data:
@@ -221,6 +238,40 @@ class CreateRecipeSerializer(ModelSerializer):
                 recipe=instance,
                 ingredient=ingredient['id'],
                 amount=ingredient['amount'])
+        return instance'''
+    
+    def update(self, instance, validated_data):
+        # Получаем ингредиенты и теги из validated_data
+        ingredients_data = validated_data.pop('ingredients', None)
+        if not ingredients_data:
+            raise ValidationError(
+                {'ingredients': 'Ингридиент, обязательное поле!'})
+        tags_data = validated_data.pop('tags', None)
+        if not tags_data:
+            raise ValidationError(
+                {'tags': 'Тег, обязательное поле!'})
+        # Обновляем остальные поля рецепта
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+        # Очищаем текущие ингредиенты и теги
+        instance.ingredients.clear()  # данные обязательны, можно перезаписать
+        instance.tags.clear()  # данные обязательны, можно перезаписать
+        # Устанавливаем новые теги
+        instance.tags.set(tags_data)
+        # Обновляем ингредиенты
+        for ingredient_data in ingredients_data:
+            # Получаем id ингредиента и количество
+            ingredient_id = ingredient_data['id']
+            amount = ingredient_data['amount']
+            # Используем update_or_create для обновления или создания новой записи
+            Amount.objects.update_or_create(
+                recipe=instance,
+                ingredient=ingredient_id,
+                defaults={'amount': amount}
+            )
+        instance.save()  # Сохраняем обновленный рецепт
         return instance
 
     def to_representation(self, instance):
