@@ -53,11 +53,22 @@ class UserPasswordSerializer(ModelSerializer):
 
 class UserSerializer(ModelSerializer):
 
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'avatar')
+        read_only_fields = ('is_subscribed',)
 
-
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return False
+        user = request.user
+        if user.is_anonymous:
+            return False
+        return Subscribe.objects.filter(user=user, author_recipies=obj).exists()
+        
 class UserCreateSerializer(ModelSerializer):
 #    username = RegexField(regex=r'^[\w.@+-]+\Z')
 
@@ -295,4 +306,8 @@ class ShoppingListSerializer(ModelSerializer):
 
 
 class SubscribeSerializer(ModelSerializer):
-    pass
+    user = UserSerializer()
+
+    class Meta:
+        model = Subscribe
+        fields = ('user', 'author_recipies')

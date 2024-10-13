@@ -95,12 +95,12 @@ http://localhost:8000/api/auth/token/login/ - сделан url  - работае
 http://localhost:8000/api/auth/token/logout/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/tags/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/tags/{id}/ - сделан url - работает, постмен прошел
-http://localhost:8000/api/recipes/ - сделан url
-http://localhost:8000/api/recipes/{id}/ - сделан url
-http://localhost:8000/api/recipes/{id}/get-link/ - сделан url
-http://localhost:8000/api/recipes/download_shopping_cart/ - сделан url
-http://localhost:8000/api/recipes/{id}/shopping_cart/ - сделан url
-http://localhost:8000/api/recipes/{id}/favorite/ - сделан url
+http://localhost:8000/api/recipes/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/recipes/{id}/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/recipes/{id}/get-link/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/recipes/download_shopping_cart/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/recipes/{id}/shopping_cart/ - сделан url - работает, постмен прошел
+http://localhost:8000/api/recipes/{id}/favorite/ - сделан url - работает, постмен прошел
 http://localhost:8000/api/users/subscriptions/ - сделан url
 http://localhost:8000/api/users/{id}/subscribe/ - сделан url
 http://localhost:8000/api/ingredients/ - сделан url - работает, постмен прошел

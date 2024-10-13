@@ -25,9 +25,9 @@ class User(AbstractUser):
         validators=[RegexValidator(r'^[\w.@+-]+\Z',),],
         )
     email = models.EmailField(max_length=254, unique=True)
-    is_subscribed = models.BooleanField(default=False)
+    #is_subscribed = models.BooleanField(default=False)
     avatar = models.ImageField(
-        upload_to='avatar/',
+        upload_to='media/avatar/',
         null=True,
         default=None,
         verbose_name='Фото аватара',
@@ -97,7 +97,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=256, verbose_name='Название рецепта')
     image = models.ImageField(
-        upload_to='recipes/',
+        upload_to='media/recipes/',
         verbose_name='Фото блюда',
     )
     text = models.TextField(
@@ -171,17 +171,28 @@ class Chosen(models.Model):
 
 class Subscribe(models.Model):
     '''Модель подписок пользователя.'''
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         User,
-        verbose_name='Автор рецепта',
+        verbose_name='Пользователь',
         on_delete=models.CASCADE,
-#        related_name='chosen'
+        related_name='user_subscribe'
+    )
+
+    author_recipies = models.ForeignKey(
+        User,
+        verbose_name='Автор рецептов',
+        on_delete=models.CASCADE,
+        related_name='author_recipies_subscribe'
     )
 
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ('author', 'id')
+        ordering = ('author_recipies', 'id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author_recipies'],
+                name='unique_subscribes')]
 
 
 class ShoppingList(models.Model):

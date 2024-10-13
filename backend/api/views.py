@@ -19,19 +19,21 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from api.filters import RecipeFilter
+from djoser.serializers import SetPasswordSerializer
 
 
 class UsersViewSet(ModelViewSet):
     """Модель пользователя."""
     queryset = User.objects.all()
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'put', 'delete']
     pagination_class = StandardResultsSetPagination
     permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -39,14 +41,75 @@ class UsersViewSet(ModelViewSet):
         else:
             return UserCreateSerializer
 
+    @action(methods=['get'], detail=True, 
+             permission_classes=[IsAuthenticated], url_path='subscriptions')
+    def user_subscriptions(self, request):
+        if self.request.method == 'GET':
+            subscribes = Subscribe.objects.filter(author=self.request.user)
+            serializer = SubscribeSerializer(subscribes, many=True)
+            return Response(serializer.data, status=HTTP_200_OK)
 
-class UserCreateViewSet(ModelViewSet):
+    @action(methods=['post', 'delete'], detail=True, 
+             permission_classes=[IsAuthenticated], url_path='subscribe')
+    def create_subscribe(self, request, pk=None):
+        user = self.request.user
+        if self.request.method == 'POST':
+            author_subscribes = get_object_or_404(User, id=pk)  # id=self.kwargs.get('pk')
+            if user == author_subscribes:
+                return Response({'detail': 'Подписываться на себя запрещено.'}, status=HTTP_400_BAD_REQUEST)
+            elif Subscribe.objects.filter(user=user, author_recipies=author_subscribes).exists():
+                return Response({'detail': 'Вы уже подписаны.'}, status=HTTP_400_BAD_REQUEST)
+            serializer = SubscribeSerializer(data=request.data, context={'request': request, 'author_recipies': author_subscribes})
+            if serializer.is_valid:
+                Subscribe.objects.create(user=user, author_recipies=author_subscribes)
+                return Response(serializer.data, status=HTTP_201_CREATED)
+            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+        else:  # request.method == 'DELETE'
+            pass
+
+    @action(methods=['get'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='me')
+    def get_current_user_info(self, request):
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user, context={'request': request})
+            return Response(serializer.data, status=HTTP_200_OK)
+
+    @action(methods=['put', 'delete'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='me/avatar')
+    def current_user_avatar(self, request):
+
+        if request.method == 'PUT':
+            serializer = AvatarSerializer(request.user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=HTTP_200_OK)
+            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+        request.user.avatar.delete()
+        request.user.avatar = None
+        request.user.save()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(methods=['post'], detail=False,
+            permission_classes=[IsAuthenticated], url_path='set_password')
+    def user_set_password(self, request):  # функция установления пароля
+        if request.method == 'POST':  # проверяем на постметод
+            serializer = SetPasswordSerializer(context={'request': request}, data=request.data)
+            # сериализация встроенным в джойстер сериализатором
+            if serializer.is_valid():  # Если данные соответсвуюут, то
+                self.request.user.set_password(serializer.data["new_password"])  
+                # устанавливаем пользователю пароль переданный в словаре new_password
+                self.request.user.save()
+                return Response(serializer.data, status=HTTP_204_NO_CONTENT)
+            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+
+
+'''class UserCreateViewSet(ModelViewSet):
     """Модель пользователя."""
     queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
+    serializer_class = UserCreateSerializer'''
 
 
-class UserInfoViewSet(ModelViewSet):
+'''class UserInfoViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
     """Информация о пользователе."""
 
     queryset = User.objects.all()
@@ -55,13 +118,13 @@ class UserInfoViewSet(ModelViewSet):
 
     @action(methods=['get'], detail=False,
             permission_classes=[IsAuthenticated], url_path='me')
-    def get_current_user_info(self, request):
+    def get_current_user_infos(self, request):
         if request.method == 'GET':
-            serializer = UserSerializer(request.user)
-            return Response(serializer.data, status=HTTP_200_OK)
+            serializer = UserSerializer(request.user, context={'request': request})
+            return Response(serializer.data, status=HTTP_200_OK)'''
 
 
-class UserPasswordViewSet(ModelViewSet):
+'''class UserPasswordViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
     """Установить новый пароль."""
 
     queryset = User.objects.all()
@@ -75,10 +138,10 @@ class UserPasswordViewSet(ModelViewSet):
             serializer = UserPasswordSerializer(request.user, data=request.data)
             serializer.is_valid()
             serializer.save()
-            return Response(serializer.data, status=HTTP_204_NO_CONTENT)
+            return Response(serializer.data, status=HTTP_204_NO_CONTENT)'''
 
 
-class AvatarViewSet(ModelViewSet):
+'''class AvatarViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
     """Аватар."""
 
     queryset = User.objects.all()
@@ -97,7 +160,7 @@ class AvatarViewSet(ModelViewSet):
         request.user.avatar.delete()
         request.user.avatar = None
         request.user.save()
-        return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_204_NO_CONTENT)'''
 
 
 class TagsViewSet(ModelViewSet):
@@ -107,7 +170,7 @@ class TagsViewSet(ModelViewSet):
     serializer_class = TagSerializer
     http_method_names = ['get']
     filterset_fields = ('name',)
-#    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 #    pagination_class = StandardResultsSetPagination
 
 
@@ -119,6 +182,7 @@ class IngredientsViewSet(ModelViewSet):
     http_method_names = ['get']
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name',)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 #    search_fields = ('name',)
 
 
