@@ -5,6 +5,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.serializers import (CurrentUserDefault,
                                         ModelSerializer,
+                                        Serializer,
+                                        CharField,
+                                        IntegerField,
                                         SlugRelatedField,
                                         ValidationError,
                                         SerializerMethodField,
@@ -306,8 +309,8 @@ class ShoppingListSerializer(ModelSerializer):
 
 
 class SubscribeSerializer(ModelSerializer):
-    user = UserSerializer()
 
     class Meta:
         model = Subscribe
         fields = ('user', 'author_recipies')
+        #read_only_fields = ('user', 'author_recipies

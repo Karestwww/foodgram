@@ -41,7 +41,7 @@ class UsersViewSet(ModelViewSet):
         else:
             return UserCreateSerializer
 
-    @action(methods=['get'], detail=True, 
+    @action(methods=['get'], detail=False, 
              permission_classes=[IsAuthenticated], url_path='subscriptions')
     def user_subscriptions(self, request):
         if self.request.method == 'GET':
@@ -51,17 +51,19 @@ class UsersViewSet(ModelViewSet):
 
     @action(methods=['post', 'delete'], detail=True, 
              permission_classes=[IsAuthenticated], url_path='subscribe')
-    def create_subscribe(self, request, pk=None):
+    def subscribe(self, request, pk=None):
         user = self.request.user
         if self.request.method == 'POST':
-            author_subscribes = get_object_or_404(User, id=pk)  # id=self.kwargs.get('pk')
+            author_subscribes = get_object_or_404(User, id=pk)
             if user == author_subscribes:
                 return Response({'detail': 'Подписываться на себя запрещено.'}, status=HTTP_400_BAD_REQUEST)
             elif Subscribe.objects.filter(user=user, author_recipies=author_subscribes).exists():
                 return Response({'detail': 'Вы уже подписаны.'}, status=HTTP_400_BAD_REQUEST)
-            serializer = SubscribeSerializer(data=request.data, context={'request': request, 'author_recipies': author_subscribes})
+            instance = User.objects.get(id=pk)
+            request.author_recipies = author_subscribes
+            serializer = SubscribeSerializer(instance=instance, context={'request': request, 'instance': instance})
             if serializer.is_valid:
-                Subscribe.objects.create(user=user, author_recipies=author_subscribes)
+                #Subscribe.objects.create(user=user, author_recipies=author_subscribes)
                 return Response(serializer.data, status=HTTP_201_CREATED)
             return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
         else:  # request.method == 'DELETE'
@@ -207,22 +209,23 @@ class RecipesViewSet(ModelViewSet):
         url = f"{DOMAIN}/recipes/{recipe.id}/"
         return Response({'short-link': url}, status=HTTP_200_OK)
 
-class ChosensViewSet(ModelViewSet):
+'''class ChosensViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
 
     queryset = Chosen.objects.all()
-    serializer_class = ChosenSerializer
+    serializer_class = ChosenSerializer'''
 
 
-class ShoppingsListViewSet(ModelViewSet):
+'''class ShoppingsListViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
 
     queryset = ShoppingList.objects.all()
-    serializer_class = ShoppingListSerializer
+    serializer_class = ShoppingListSerializer'''
 
 
-class SubscribeViewSet(ModelViewSet):
+'''class SubscribeViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
 
     queryset = Subscribe.objects.all()
     serializer_class = SubscribeSerializer
+'''
