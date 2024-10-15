@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, get_list_or_404, render
 from api.serializers import (TagSerializer,
                              IngredientSerializer,
                              RecipeSerializer,
@@ -45,9 +45,12 @@ class UsersViewSet(ModelViewSet):
              permission_classes=[IsAuthenticated], url_path='subscriptions')
     def user_subscriptions(self, request):
         if self.request.method == 'GET':
-            subscribes = Subscribe.objects.filter(author=self.request.user)
-            serializer = SubscribeSerializer(subscribes, many=True)
-            return Response(serializer.data, status=HTTP_200_OK)
+            aaa = Subscribe.objects.filter(user=self.request.user)
+            subscribes = User.objects.filter(username=self.request.user)
+            #fff = get_list_or_404(aaa)
+            pages = self.paginate_queryset(subscribes)
+            serializer = SubscribeSerializer(pages, many=True)
+            return self.get_paginated_response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=True, 
              permission_classes=[IsAuthenticated], url_path='subscribe')
@@ -59,11 +62,9 @@ class UsersViewSet(ModelViewSet):
                 return Response({'detail': 'Подписываться на себя запрещено.'}, status=HTTP_400_BAD_REQUEST)
             elif Subscribe.objects.filter(user=user, author_recipies=author_subscribes).exists():
                 return Response({'detail': 'Вы уже подписаны.'}, status=HTTP_400_BAD_REQUEST)
-            instance = User.objects.get(id=pk)
-            request.author_recipies = author_subscribes
-            serializer = SubscribeSerializer(instance=instance, context={'request': request, 'instance': instance})
+            Subscribe.objects.create(user=user, author_recipies=author_subscribes)
+            serializer = SubscribeSerializer(author_subscribes, context={'request': request})
             if serializer.is_valid:
-                #Subscribe.objects.create(user=user, author_recipies=author_subscribes)
                 return Response(serializer.data, status=HTTP_201_CREATED)
             return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
         else:  # request.method == 'DELETE'

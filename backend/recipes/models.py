@@ -126,6 +126,7 @@ class Recipe(models.Model):
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ('id', 'name')
+        default_related_name = 'recipes'
 
 
 class Amount(models.Model):

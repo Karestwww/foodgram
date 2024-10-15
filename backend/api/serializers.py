@@ -308,9 +308,40 @@ class ShoppingListSerializer(ModelSerializer):
     pass
 
 
+class SubscribeRecipeSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
 class SubscribeSerializer(ModelSerializer):
 
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    
+
     class Meta:
-        model = Subscribe
-        fields = ('user', 'author_recipies')
-        #read_only_fields = ('user', 'author_recipies
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipes_count', 'avatar')
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return False
+        user = request.user
+        if user.is_anonymous:
+            return False
+        return Subscribe.objects.filter(user=user, author_recipies=obj).exists()
+
+    def get_recipes(self, obj):
+        #breakpoint()
+        request = self.context.get('request')
+        if not request:
+            return False
+        recipies = obj.recipes.all()
+        return SubscribeRecipeSerializer(recipies, many=True).data
+
+    def get_recipes_count(self, obj):
+        count_recipies = obj.recipes.all().count()
+        return count_recipies
