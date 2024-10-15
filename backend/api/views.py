@@ -43,18 +43,17 @@ class UsersViewSet(ModelViewSet):
 
     @action(methods=['get'], detail=False, 
              permission_classes=[IsAuthenticated], url_path='subscriptions')
-    def user_subscriptions(self, request):
+    def user_subscriptions(self, request, *args, **kwargs):
         if self.request.method == 'GET':
-            aaa = Subscribe.objects.filter(user=self.request.user)
-            subscribes = User.objects.filter(username=self.request.user)
-            #fff = get_list_or_404(aaa)
+            user=self.request.user
+            subscribes = user.subscribers.all()
             pages = self.paginate_queryset(subscribes)
-            serializer = SubscribeSerializer(pages, many=True)
+            serializer = SubscribeSerializer(pages, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=True, 
              permission_classes=[IsAuthenticated], url_path='subscribe')
-    def subscribe(self, request, pk=None):
+    def subscribe(self, request, pk=None, *args, **kwargs):
         user = self.request.user
         if self.request.method == 'POST':
             author_subscribes = get_object_or_404(User, id=pk)
@@ -174,6 +173,7 @@ class TagsViewSet(ModelViewSet):
     http_method_names = ['get']
     filterset_fields = ('name',)
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = None
 #    pagination_class = StandardResultsSetPagination
 
 
@@ -186,6 +186,7 @@ class IngredientsViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name',)
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = None
 #    search_fields = ('name',)
 
 
@@ -198,6 +199,7 @@ class RecipesViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

@@ -35,9 +35,17 @@ class User(AbstractUser):
     password = models.CharField(max_length=254)
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
     USERNAME_FIELD = 'email'
+    subscriptions = models.ManyToManyField(
+        'self',
+        through='Subscribe',
+        symmetrical=False,
+        related_name='subscribers',
+        verbose_name='Подписки'
+    )
 
-    def __str__(self):
-        return self.username
+
+    '''def __str__(self):
+        return self.username'''
 
     class Meta:
         verbose_name = 'пользователь'
@@ -172,18 +180,18 @@ class Chosen(models.Model):
 
 class Subscribe(models.Model):
     '''Модель подписок пользователя.'''
-    user = models.ForeignKey(
-        User,
-        verbose_name='Пользователь',
-        on_delete=models.CASCADE,
-        related_name='user_subscribe'
-    )
-
     author_recipies = models.ForeignKey(
         User,
         verbose_name='Автор рецептов',
         on_delete=models.CASCADE,
         related_name='author_recipies_subscribe'
+    )
+    
+    user = models.ForeignKey(
+        User,
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+        related_name='user_subscribe'
     )
 
     class Meta:

@@ -235,24 +235,6 @@ class CreateRecipeSerializer(ModelSerializer):
         Amount.objects.bulk_create(ingredients_to_create)
         return recipe
 
-    '''def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        # Unless the application properly enforces that this field is
-        # always set, the following could raise a `DoesNotExist`, which
-        # would need to be handled.
-        tags_data = validated_data.pop('tags')
-        instance.image = validated_data.get('image', instance.image)
-        instance.ingredients.clear()  # данные обязательны, можно перезаписать
-        instance.tags.clear()  # данные обязательны, можно перезаписать
-        instance.ingredients.set(ingredients_data)
-        instance.tags.set(tags_data)
-        instance.save()
-        for ingredient in ingredients_data:
-            Amount.objects.update_or_create(
-                recipe=instance,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount'])
-        return instance'''
     
     def update(self, instance, validated_data):
         # Получаем ингредиенты и теги из validated_data
@@ -315,15 +297,15 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 class SubscribeSerializer(ModelSerializer):
-
+    
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     
-
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipes_count', 'avatar')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name', 
+                  'is_subscribed', 'recipes', 'recipes_count', 'avatar')
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -335,13 +317,11 @@ class SubscribeSerializer(ModelSerializer):
         return Subscribe.objects.filter(user=user, author_recipies=obj).exists()
 
     def get_recipes(self, obj):
-        #breakpoint()
         request = self.context.get('request')
         if not request:
-            return False
+            return []
         recipies = obj.recipes.all()
-        return SubscribeRecipeSerializer(recipies, many=True).data
+        return SubscribeRecipeSerializer(recipies, many=True, context={'request': request}).data
 
     def get_recipes_count(self, obj):
-        count_recipies = obj.recipes.all().count()
-        return count_recipies
+        return obj.recipes.count()
