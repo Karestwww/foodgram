@@ -92,6 +92,7 @@ class Ingredient(models.Model):
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name', 'measurement_unit')
+        default_related_name = 'ingredients'
 
 
 class Recipe(models.Model):
@@ -160,22 +161,23 @@ class Amount(models.Model):
 
 class Chosen(models.Model):
     '''Модель избранных рецептов.'''
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         User,
-        verbose_name='Автор рецепта',
+        verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='favorited'
     )
-    recipe = models.ManyToManyField(
+    recipe = models.ForeignKey(
         Recipe,
-        related_name='favorited',
-        verbose_name='Рецепт'
+        verbose_name='Избранный рецепт',
+        on_delete=models.CASCADE,
+        related_name='favorited'
     )
 
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
-        ordering = ('author',)
+        ordering = ('id',)
 
 
 class Subscribe(models.Model):
@@ -206,19 +208,20 @@ class Subscribe(models.Model):
 
 class ShoppingList(models.Model):
     '''Модель списка покупок.'''
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
         related_name='in_shopping_cart'
     )
-    recipe = models.ManyToManyField(
+    recipe = models.ForeignKey(
         Recipe,
-        related_name='in_shopping_cart',
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+        related_name='in_shopping_cart'
     )
 
     class Meta:
-        verbose_name = 'избранный'
-        verbose_name_plural = 'Избранные'
-        ordering = ('author',)
+        verbose_name = 'список покупок'
+        verbose_name_plural = 'Списки покупок'
+        ordering = ('recipe',)

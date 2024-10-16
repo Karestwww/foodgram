@@ -19,12 +19,13 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from api.filters import RecipeFilter
 from djoser.serializers import SetPasswordSerializer
+from api.querysets import shopping_cart_file
 
 
 class UsersViewSet(ModelViewSet):
@@ -55,8 +56,8 @@ class UsersViewSet(ModelViewSet):
              permission_classes=[IsAuthenticated], url_path='subscribe')
     def subscribe(self, request, pk=None, *args, **kwargs):
         user = self.request.user
+        author_subscribes = get_object_or_404(User, id=pk)
         if self.request.method == 'POST':
-            author_subscribes = get_object_or_404(User, id=pk)
             if user == author_subscribes:
                 return Response({'detail': 'Подписываться на себя запрещено.'}, status=HTTP_400_BAD_REQUEST)
             elif Subscribe.objects.filter(user=user, author_recipies=author_subscribes).exists():
@@ -66,8 +67,12 @@ class UsersViewSet(ModelViewSet):
             if serializer.is_valid:
                 return Response(serializer.data, status=HTTP_201_CREATED)
             return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
-        else:  # request.method == 'DELETE'
-            pass
+        # if request.method == 'DELETE'
+        subscription = Subscribe.objects.filter(user=user, author_recipies=author_subscribes)
+        if not subscription.exists():
+            return Response({'detail': 'Вы не подписаны.'}, status=HTTP_400_BAD_REQUEST)
+        subscription.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False,
             permission_classes=[IsAuthenticated], url_path='me')
@@ -167,7 +172,6 @@ class UsersViewSet(ModelViewSet):
 
 class TagsViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
-
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     http_method_names = ['get']
@@ -179,7 +183,6 @@ class TagsViewSet(ModelViewSet):
 
 class IngredientsViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
-
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     http_method_names = ['get']
@@ -192,14 +195,12 @@ class IngredientsViewSet(ModelViewSet):
 
 class RecipesViewSet(ModelViewSet):
     """По модели Recipe все стандартные виды запросов через viewsets."""
-
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = StandardResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
-    pagination_class = None
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -208,9 +209,66 @@ class RecipesViewSet(ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_link(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = get_object_or_404(Recipe, id=pk)
         url = f"{DOMAIN}/recipes/{recipe.id}/"
         return Response({'short-link': url}, status=HTTP_200_OK)
+
+    @action(methods=['post', 'delete'], detail=True, 
+             permission_classes=[IsAuthenticated], url_path='favorite')
+    def favorite(self, request, pk=None, *args, **kwargs):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        #breakpoint()
+        if self.request.method == 'POST':
+            #если уже в избранном ошибка 400
+            if Chosen.objects.filter(user=user, recipe=recipe).exists():
+                return Response({'detail': 'Рецепт уже в избранном.'}, status=HTTP_400_BAD_REQUEST)
+            Chosen.objects.update_or_create(user=user, recipe=recipe)
+            serializer = ChosenSerializer(recipe, context={'request': request})
+            if serializer.is_valid:
+                return Response(serializer.data, status=HTTP_201_CREATED)
+            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+        chosen = Chosen.objects.filter(user=user, recipe=recipe)
+        if not chosen.exists():
+            return Response({'detail': 'Рецепт не в избранном.'}, status=HTTP_400_BAD_REQUEST)
+        chosen.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(methods=['post', 'delete'], detail=True, 
+             permission_classes=[IsAuthenticated], url_path='shopping_cart')
+    def shopping_list(self, request, pk=None, *args, **kwargs):
+        user = self.request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        if self.request.method == 'POST':
+            if ShoppingList.objects.filter(user=user, recipe=recipe).exists():
+                return Response({'detail': 'Рецепт уже в списке покупок.'}, status=HTTP_400_BAD_REQUEST)
+            ShoppingList.objects.update_or_create(user=user, recipe=recipe)
+            serializer = ShoppingListSerializer(recipe, context={'request': request})
+            if serializer.is_valid:
+                return Response(serializer.data, status=HTTP_201_CREATED)
+            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+        shopping_list = ShoppingList.objects.filter(user=user, recipe=recipe)
+        if not shopping_list.exists():
+            return Response({'detail': 'Рецепт не в списке покупок.'}, status=HTTP_400_BAD_REQUEST)
+        shopping_list.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False, 
+             permission_classes=[IsAuthenticated], url_path='download_shopping_cart')
+    def download_shopping_cart(self, request, *args, **kwargs):
+        if self.request.method == 'GET':
+            user=self.request.user
+            if not user.in_shopping_cart.exists():
+                return Response('Список покупок пуст.',status=HTTP_404_NOT_FOUND)
+            return shopping_cart_file(self, request, user)
+
+            #subscribes = user.subscribers.all()
+            #pages = self.paginate_queryset(subscribes)
+            #serializer = SubscribeSerializer(pages, many=True, context={'request': request})
+            #return self.get_paginated_response(serializer.data)
+
+
+
 
 '''class ChosensViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""

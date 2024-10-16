@@ -283,14 +283,20 @@ class CreateRecipeSerializer(ModelSerializer):
 
 
 class ChosenSerializer(ModelSerializer):
-    pass
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShoppingListSerializer(ModelSerializer):
-    pass
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class SubscribeRecipeSerializer(serializers.ModelSerializer):
+class SubscribeRecipeSerializer(ModelSerializer):
     
     class Meta:
         model = Recipe
