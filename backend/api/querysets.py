@@ -1,4 +1,4 @@
-from recipes.models import Ingredient, ShoppingList, Amount
+from recipes.models import Ingredient, ShoppingList, Amount, Recipe
 
 
 #Надо вывести список:
@@ -6,6 +6,9 @@ from recipes.models import Ingredient, ShoppingList, Amount
 def shopping_cart_file(self, request, user):
     """Функция формирования файлов ингридиентов."""
     ingridients = Ingredient.objects.filter()
-    user=user
+    user = user
+    recipes = Recipe.objects.filter(author=user)
     shopping_list = ShoppingList.objects.filter(user=user)  # получаем queryset по списку покупок
-    
+    #asd = recipes.in_shopping_cart
+    breakpoint()
+    print(user)
