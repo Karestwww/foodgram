@@ -7,11 +7,9 @@ def shopping_cart_file(self, request, user):
     """Функция формирования файлов ингридиентов."""
     ingridients = Amount.objects.filter(
         recipe__in_shopping_cart__user=user).values(
-            'ingredient__name', 'ingredient__measurement_unit'
+            'ingredient__name', 'ingredient__measurement_unit', 'amount', 'recipe__name'
             )
-    user = user
-    recipes = Recipe.objects.filter(author=user)
-    shopping_list = ShoppingList.objects.filter(user=user)  # получаем queryset по списку покупок
-    #asd = recipes.in_shopping_cart
+    for ingridient in ingridients:
+        print (ingridient['ingredient__name'] + " (" + ingridient['ingredient__measurement_unit'] + ") — " + str(ingridient['amount']))
     breakpoint()
     print(user)

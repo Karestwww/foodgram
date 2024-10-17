@@ -1,5 +1,5 @@
 from django.contrib import admin
-from recipes.models import User, Tag, Ingredient, Recipe, Subscribe, Chosen, ShoppingList
+from recipes.models import User, Tag, Ingredient, Recipe, Subscribe, Chosen, ShoppingList, Amount
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -39,9 +39,16 @@ class ChosenInline(admin.StackedInline):
     model = Chosen
     extra = 0
 
+
+class AmountInline(admin.StackedInline):
+    """Админ настройка доступа из рецептов к избранному."""
+    model = Amount
+    extra = 0
+
+
 class RecipeAdmin(ImportExportModelAdmin):
     """Админ настройка рецептов."""
-    inlines = (ChosenInline,)
+    inlines = (ChosenInline, AmountInline)
     list_display = ('id', 'name', 'author', 'in_сhosen',)
     list_edittable = ('name', 'author',)
     filter_horizontal = ('tags',)
