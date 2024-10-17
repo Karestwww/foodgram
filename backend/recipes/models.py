@@ -9,8 +9,8 @@ class User(AbstractUser):
     """Модель пользователей"""
 
     class Role(models.TextChoices):
-        USER = 'user', _('User')
-        ADMIN = 'admin', _('Admin')
+        USER = 'user', _('Пользователь')
+        ADMIN = 'admin', _('Администратор')
 
     role = models.CharField(
         max_length=20,
@@ -28,6 +28,7 @@ class User(AbstractUser):
     #is_subscribed = models.BooleanField(default=False)
     avatar = models.ImageField(
         upload_to='media/avatar/',
+        blank=True,
         null=True,
         default=None,
         verbose_name='Фото аватара',
@@ -44,13 +45,14 @@ class User(AbstractUser):
     )
 
 
-    '''def __str__(self):
-        return self.username'''
+    def __str__(self):
+        return self.username
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
+        default_related_name = 'user_related_name'
 
 
 class Tag(models.Model):
@@ -102,7 +104,6 @@ class Recipe(models.Model):
         User,
         verbose_name='Автор рецепта',
         on_delete=models.CASCADE,
-#        related_name='recipes'
     )
     name = models.CharField(max_length=256, verbose_name='Название рецепта')
     image = models.ImageField(
@@ -115,12 +116,10 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='Amount',
-#        related_name='recipes',
         verbose_name='Ингредиент'
     )
     tags = models.ManyToManyField(
         Tag,
-#        related_name='recipes',
         verbose_name='Тег'
     )
     cooking_time = models.PositiveSmallIntegerField(
