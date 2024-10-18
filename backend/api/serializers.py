@@ -153,7 +153,7 @@ class RecipeSerializer(ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         if self.context.get('request').user:
             return False
-        return Chosen.objects.filter(recipe=obj).exists()
+        return ShoppingList.objects.filter(recipe=obj).exists()
 
 
 class AmountCreateRecipeSerializer(ModelSerializer):
@@ -187,7 +187,7 @@ class CreateRecipeSerializer(ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         if self.context.get('request').user:
             return False
-        return Chosen.objects.filter(recipe=obj).exists()
+        return ShoppingList.objects.filter(recipe=obj).exists()
 
     def validate_ingredients(self, value):
         ingredients = value
@@ -326,8 +326,21 @@ class SubscribeSerializer(ModelSerializer):
         request = self.context.get('request')
         if not request:
             return []
+        #limit_in_shopping_cart = request.GET.get('is_in_shopping_cart')
+        recipes_limit = request.GET.get('recipes_limit')
+        queryset = obj.recipes.all()
+        #breakpoint()
+        #if limit_in_shopping_cart:
+        #queryset = queryset.filter('is_in_shopping_cart')
+        if recipes_limit:
+            queryset = queryset[:int(recipes_limit)]
+        return SubscribeRecipeSerializer(queryset, many=True, context={'request': request}).data
+
+        '''request = self.context.get('request')
+        if not request:
+            return []
         recipies = obj.recipes.all()
-        return SubscribeRecipeSerializer(recipies, many=True, context={'request': request}).data
+        return SubscribeRecipeSerializer(recipies, many=True, context={'request': request}).data'''
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()

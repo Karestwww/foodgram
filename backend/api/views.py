@@ -261,32 +261,3 @@ class RecipesViewSet(ModelViewSet):
             if not user.in_shopping_cart.exists():
                 return Response('Список покупок пуст.',status=HTTP_404_NOT_FOUND)
             return shopping_cart_file(self, request, user)
-
-            #subscribes = user.subscribers.all()
-            #pages = self.paginate_queryset(subscribes)
-            #serializer = SubscribeSerializer(pages, many=True, context={'request': request})
-            #return self.get_paginated_response(serializer.data)
-
-
-
-
-'''class ChosensViewSet(ModelViewSet):
-    """По модели POST все стандартные виды запросов через viewsets."""
-
-    queryset = Chosen.objects.all()
-    serializer_class = ChosenSerializer'''
-
-
-'''class ShoppingsListViewSet(ModelViewSet):
-    """По модели POST все стандартные виды запросов через viewsets."""
-
-    queryset = ShoppingList.objects.all()
-    serializer_class = ShoppingListSerializer'''
-
-
-'''class SubscribeViewSet(ModelViewSet):
-    """По модели POST все стандартные виды запросов через viewsets."""
-
-    queryset = Subscribe.objects.all()
-    serializer_class = SubscribeSerializer
-'''

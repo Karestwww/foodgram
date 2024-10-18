@@ -14,4 +14,10 @@ class RecipeFilter(FilterSet):  # взял из док-ции по рекоме�
 
     class Meta:
         model = Recipe
-        fields = ['tags', 'author']
+        fields = ['tags', 'author', 'is_in_shopping_cart']
+
+    def filter_is_in_shopping_cart(self, queryset):
+        if not self.request.user.is_authenticated:
+            return queryset
+        return queryset.filter(in_shopping_cart__user=self.request.user)
+    
