@@ -146,13 +146,9 @@ class RecipeSerializer(ModelSerializer):
 #        read_only_fields = ('id', 'author', 'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time')
 
     def get_is_favorited(self, obj):
-        if self.context.get('request').user:
-            return False
         return Chosen.objects.filter(recipe=obj).exists()
         
     def get_is_in_shopping_cart(self, obj):
-        if self.context.get('request').user:
-            return False
         return ShoppingList.objects.filter(recipe=obj).exists()
 
 
@@ -180,13 +176,9 @@ class CreateRecipeSerializer(ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'image', 'name', 'text', 'cooking_time', 'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, obj):
-        if self.context.get('request').user:
-            return False
         return Chosen.objects.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        if self.context.get('request').user:
-            return False
         return ShoppingList.objects.filter(recipe=obj).exists()
 
     def validate_ingredients(self, value):

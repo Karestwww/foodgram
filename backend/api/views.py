@@ -110,66 +110,6 @@ class UsersViewSet(ModelViewSet):
             return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
 
 
-'''class UserCreateViewSet(ModelViewSet):
-    """Модель пользователя."""
-    queryset = User.objects.all()
-    serializer_class = UserCreateSerializer'''
-
-
-'''class UserInfoViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
-    """Информация о пользователе."""
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    http_method_names = ['get']
-
-    @action(methods=['get'], detail=False,
-            permission_classes=[IsAuthenticated], url_path='me')
-    def get_current_user_infos(self, request):
-        if request.method == 'GET':
-            serializer = UserSerializer(request.user, context={'request': request})
-            return Response(serializer.data, status=HTTP_200_OK)'''
-
-
-'''class UserPasswordViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
-    """Установить новый пароль."""
-
-    queryset = User.objects.all()
-    serializer_class = UserPasswordSerializer
-    http_method_names = ['post']
-
-    @action(methods=['post'], detail=False,
-            permission_classes=[IsAuthenticated], url_path='set_password')
-    def user_set_password(self, request):
-        if request.method == 'POST':
-            serializer = UserPasswordSerializer(request.user, data=request.data)
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=HTTP_204_NO_CONTENT)'''
-
-
-'''class AvatarViewSet(ModelViewSet):  # неактуально, перекинул в UsersViewSet
-    """Аватар."""
-
-    queryset = User.objects.all()
-    serializer_class = AvatarSerializer
-    http_method_names = ['put', 'delete']
-
-    @action(methods=['put', 'delete'], detail=False,
-            permission_classes=[IsAuthenticated], url_path='me/avatar')
-    def current_user_avatar(self, request):
-
-        if request.method == 'PUT':
-            serializer = AvatarSerializer(request.user, data=request.data)
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=HTTP_200_OK)
-        request.user.avatar.delete()
-        request.user.avatar = None
-        request.user.save()
-        return Response(status=HTTP_204_NO_CONTENT)'''
-
-
 class TagsViewSet(ModelViewSet):
     """По модели POST все стандартные виды запросов через viewsets."""
     queryset = Tag.objects.all()
@@ -198,8 +138,8 @@ class RecipesViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = StandardResultsSetPagination
-    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
 
     def get_serializer_class(self):
