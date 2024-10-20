@@ -102,7 +102,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         # Это параметр воркфлоу, указывающий нужную версию Node.js
-        node-version: 21.7.1
+        node-version: 18
 
     - name: Install dependencies
       # Эта команда устанавливает зависимости для фронтенда

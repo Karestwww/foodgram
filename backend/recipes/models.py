@@ -24,7 +24,7 @@ class User(AbstractUser):
         validators=[RegexValidator(r'^[\w.@+-]+\Z',),],)
     email = models.EmailField(max_length=254, unique=True)
     avatar = models.ImageField(
-        upload_to='media/avatar/',
+        upload_to='avatar/',
         blank=True,
         null=True,
         default=None,
@@ -103,7 +103,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=256, verbose_name='Название рецепта')
     image = models.ImageField(
-        upload_to='media/recipes/',
+        upload_to='recipes/',
         verbose_name='Фото блюда',
     )
     text = models.TextField(
