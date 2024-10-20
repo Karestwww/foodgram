@@ -7,4 +7,3 @@ class StandardResultsSetPagination(LimitOffsetPagination):
     page_size = 6
     default_limit = page_size
     max_limit = page_size
-#    max_page_size = 1000

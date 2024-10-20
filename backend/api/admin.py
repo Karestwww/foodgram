@@ -1,7 +1,8 @@
 from django.contrib import admin
-from recipes.models import User, Tag, Ingredient, Recipe, Subscribe, Chosen, ShoppingList, Amount
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+from recipes.models import (Amount, Chosen, Ingredient, Recipe, ShoppingList,
+                            Subscribe, Tag, User)
 
 
 class IngredientResource(resources.ModelResource):
@@ -57,7 +58,6 @@ class RecipeAdmin(ImportExportModelAdmin):
 
     def in_сhosen(self, obj):
         return obj.favorited.all().count()
-    
     in_сhosen.short_description = 'В избранном'
 
 

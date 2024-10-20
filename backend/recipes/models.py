@@ -1,8 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
 
 class User(AbstractUser):
@@ -22,10 +21,8 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        validators=[RegexValidator(r'^[\w.@+-]+\Z',),],
-        )
+        validators=[RegexValidator(r'^[\w.@+-]+\Z',),],)
     email = models.EmailField(max_length=254, unique=True)
-    #is_subscribed = models.BooleanField(default=False)
     avatar = models.ImageField(
         upload_to='media/avatar/',
         blank=True,
@@ -43,7 +40,6 @@ class User(AbstractUser):
         related_name='subscribers',
         verbose_name='Подписки'
     )
-
 
     def __str__(self):
         return self.username
@@ -139,7 +135,8 @@ class Recipe(models.Model):
 
 class Amount(models.Model):
     '''Модель для кол-ва ингридиентов в рецепте'''
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_ingredients')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='recipe_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
     amount = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1),),
@@ -187,7 +184,7 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE,
         related_name='author_recipies_subscribe'
     )
-    
+
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
