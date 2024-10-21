@@ -20,8 +20,8 @@ from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
                              TagSerializer, UserCreateSerializer,
                              UserSerializer)
 from backend.settings import DOMAIN
-from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList, Subscribe,
-                            Tag, User)
+from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
+                            Subscribe, Tag, User)
 
 
 class UsersViewSet(ModelViewSet):
@@ -132,7 +132,8 @@ class IngredientsViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     http_method_names = ['get']
-    filter_backends = (IngredientFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = (IngredientFilter,)
     filterset_fields = ('name',)
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
