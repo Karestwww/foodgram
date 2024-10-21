@@ -2,12 +2,13 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from recipes.models import (Amount, Chosen, Ingredient, Recipe, ShoppingList,
-                            Subscribe, Tag, User)
 from rest_framework import serializers
 from rest_framework.serializers import (ImageField, ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField, ValidationError)
+
+from recipes.models import (Amount, Chosen, Ingredient, Recipe, ShoppingList,
+                            Subscribe, Tag, User)
 
 
 class Base64ImageField(ImageField):

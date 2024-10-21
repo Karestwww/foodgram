@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 volumes:
   pg_data:
@@ -24,7 +24,7 @@ services:
   frontend:
     env_file: .env
     image: karestwww/foodgram_frontend  # Качаем с Docker Hub
-    command: cp -r /app/build/. /frontend_static/
+    command: cp -r /app/result_build/. /frontend_static/
     volumes:
       - static:/frontend_static/
 

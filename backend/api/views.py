@@ -1,17 +1,6 @@
-from api.filters import RecipeFilter
-from api.paginators import StandardResultsSetPagination
-from api.permissions import IsAuthorOrReadOnly
-from api.querysets import shopping_cart_file
-from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
-                             IngredientSerializer, RecipeSerializer,
-                             SimpleRecipeSerializer, SubscribeSerializer,
-                             TagSerializer, UserCreateSerializer,
-                             UserSerializer)
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
-from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
-                            Subscribe, Tag, User)
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -21,7 +10,18 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.viewsets import ModelViewSet
 
+from api.filters import RecipeFilter, IngredientFilter
+from api.paginators import StandardResultsSetPagination
+from api.permissions import IsAuthorOrReadOnly
+from api.querysets import shopping_cart_file
+from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
+                             IngredientSerializer, RecipeSerializer,
+                             SimpleRecipeSerializer, SubscribeSerializer,
+                             TagSerializer, UserCreateSerializer,
+                             UserSerializer)
 from backend.settings import DOMAIN
+from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
+                            Subscribe, Tag, User)
 
 
 class UsersViewSet(ModelViewSet):
@@ -132,7 +132,7 @@ class IngredientsViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     http_method_names = ['get']
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (IngredientFilter, )
     filterset_fields = ('name',)
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
