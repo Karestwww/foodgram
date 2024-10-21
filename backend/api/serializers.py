@@ -129,10 +129,12 @@ class RecipeSerializer(ModelSerializer):
                   'name', 'image', 'text', 'cooking_time')
 
     def get_is_favorited(self, obj):
-        return Chosen.objects.filter(recipe=obj).exists()
+        user = self.context.get('request').user
+        return Chosen.objects.filter(recipe=obj, user=user).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return ShoppingList.objects.filter(recipe=obj).exists()
+        user = self.context.get('request').user
+        return ShoppingList.objects.filter(recipe=obj, user=user).exists()
 
 
 class AmountCreateRecipeSerializer(ModelSerializer):

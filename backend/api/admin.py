@@ -56,6 +56,7 @@ class RecipeAdmin(ImportExportModelAdmin):
     filter_horizontal = ('tags',)
     search_fields = ('name', 'author__username',)
     list_filter = ('tags',)
+    search_help_text = 'Рецепты'
 
     def in_сhosen(self, obj):
         return obj.favorited.all().count()
