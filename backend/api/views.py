@@ -10,7 +10,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.viewsets import ModelViewSet
 
-from api.filters import RecipeFilter, IngredientFilter
+from api.filters import IngredientFilter, RecipeFilter
 from api.paginators import StandardResultsSetPagination
 from api.permissions import IsAuthorOrReadOnly
 from api.querysets import shopping_cart_file
@@ -20,8 +20,8 @@ from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
                              TagSerializer, UserCreateSerializer,
                              UserSerializer)
 from backend.settings import DOMAIN
-from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
-                            Subscribe, Tag, User)
+from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList, Subscribe,
+                            Tag, User)
 
 
 class UsersViewSet(ModelViewSet):
