@@ -43,10 +43,10 @@ class RecipeFilter(FilterSet):
         return queryset
 
 
-class IngredientFilter(SearchFilter):
-    """Фильтр ингридиентов"""
-    name = CharFilter(lookup_expr='icontains', field_name='name')
+class IngredientFilter(FilterSet):
+    """Фильтр для ингридиентов."""
+    name = CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Ingredient
-        fields = ('name',)
+        fields = ['name']
