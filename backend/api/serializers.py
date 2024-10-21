@@ -32,6 +32,7 @@ class AvatarSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     """Сериализатор пользователя при выводе о не информации."""
     is_subscribed = serializers.SerializerMethodField()
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
@@ -116,6 +117,7 @@ class RecipeSerializer(ModelSerializer):
     is_in_shopping_cart = SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer()
+    image = Base64ImageField()
     ingredients = AmountSerializer(source='recipe_ingredients',
                                    many=True, read_only=True)
 
@@ -249,6 +251,8 @@ class CreateRecipeSerializer(ModelSerializer):
 
 class SimpleRecipeSerializer(ModelSerializer):
     """Сериализатор рецептов краткий."""
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -259,6 +263,7 @@ class SubscribeSerializer(ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    avatar = Base64ImageField()
 
     class Meta:
         model = User
