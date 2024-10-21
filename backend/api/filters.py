@@ -4,7 +4,7 @@ from django_filters.rest_framework.filters import (ModelChoiceFilter,
                                                    NumberFilter)
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Recipe, Tag, User
+from recipes.models import Recipe, Tag, Ingredient, User
 
 
 class RecipeFilter(FilterSet):
@@ -46,3 +46,7 @@ class RecipeFilter(FilterSet):
 class IngredientFilter(SearchFilter):
     """Фильтр ингридиентов"""
     name = CharFilter(lookup_expr='icontains', field_name='name')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
