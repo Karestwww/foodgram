@@ -1,4 +1,4 @@
-from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import FilterSet, CharFilter
 from django_filters.rest_framework.filters import (ModelChoiceFilter,
                                                    ModelMultipleChoiceFilter,
                                                    NumberFilter)
@@ -14,12 +14,13 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all(),
         field_name='tags__slug',
         to_field_name='slug')
+    ingredients__name = CharFilter(lookup_expr='icontains')
     is_favorited = NumberFilter(method='filter_is_favorited')
     is_in_shopping_cart = NumberFilter(method='filter_is_in_shopping_cart')
 
     class Meta:
         model = Recipe
-        fields = ['tags', 'author']
+        fields = ['tags', 'author', 'ingredients']
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
