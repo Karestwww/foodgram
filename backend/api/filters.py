@@ -4,7 +4,7 @@ from django_filters.rest_framework.filters import (ModelChoiceFilter,
                                                    NumberFilter)
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Recipe, Tag, Ingredient, User
+from recipes.models import Ingredient, Recipe, Tag, User
 
 
 class RecipeFilter(FilterSet):
