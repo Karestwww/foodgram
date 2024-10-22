@@ -196,7 +196,7 @@ class Subscribe(models.Model):
     )
 
     def __str__(self):
-        return f'{self.user} подписан на автора рецептов {self.author}'
+        return f'{self.user} подписан на автора рецептов {self.author_recipies}'
 
     class Meta:
         verbose_name = 'подписка'
