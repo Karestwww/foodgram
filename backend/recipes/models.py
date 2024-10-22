@@ -21,7 +21,7 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        validators=[RegexValidator(r'^[\w.@+-]+\Z',),],)
+        validators=[RegexValidator(r'^[\w.@+-]+\Z',),],)  # type: ignore
     email = models.EmailField(max_length=254, unique=True)
     avatar = models.ImageField(
         upload_to='avatar/',
