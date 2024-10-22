@@ -129,7 +129,7 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('id', 'name')
+        ordering = ('-id',)
         default_related_name = 'recipes'
 
 
@@ -170,6 +170,9 @@ class Chosen(models.Model):
         related_name='favorited'
     )
 
+    def __str__(self):
+        return f'{self.recipe}'
+
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
@@ -191,6 +194,9 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE,
         related_name='user_subscribe'
     )
+
+    def __str__(self):
+        return f'{self.user} подписан на автора рецептов {self.author}'
 
     class Meta:
         verbose_name = 'подписка'
@@ -216,6 +222,9 @@ class ShoppingList(models.Model):
         on_delete=models.CASCADE,
         related_name='in_shopping_cart'
     )
+
+    def __str__(self):
+        return f'{self.recipe}'
 
     class Meta:
         verbose_name = 'список покупок'
