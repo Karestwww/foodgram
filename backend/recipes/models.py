@@ -1,7 +1,9 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from backend.settings import MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME
 
 
 class User(AbstractUser):
@@ -41,18 +43,18 @@ class User(AbstractUser):
         verbose_name='Подписки'
     )
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
         default_related_name = 'user_related_name'
 
+    def __str__(self):
+        return self.username
+
 
 class Tag(models.Model):
-    '''Модель тега рецепта.'''
+    """Модель тега рецепта."""
     name = models.CharField(
         max_length=32,
         verbose_name='Название тега'
@@ -63,17 +65,17 @@ class Tag(models.Model):
         verbose_name='Слаг'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
         ordering = ('name', 'slug')
 
+    def __str__(self):
+        return self.name
+
 
 class Ingredient(models.Model):
-    '''Модель ингредиента.'''
+    """Модель ингредиента."""
     name = models.CharField(
         max_length=128,
         verbose_name='Название'
@@ -83,18 +85,18 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name', 'measurement_unit')
         default_related_name = 'ingredients'
 
+    def __str__(self):
+        return self.name
+
 
 class Recipe(models.Model):
-    '''Модель рецептов'''
+    """Модель рецептов"""
 
     author = models.ForeignKey(
         User,
@@ -119,12 +121,10 @@ class Recipe(models.Model):
         verbose_name='Тег'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        validators=(MinValueValidator(1),),
+        validators=(MinValueValidator(MIN_COOKING_TIME),
+                    MaxValueValidator(MAX_COOKING_TIME)),
         verbose_name='Время приготовления в минутах'
     )
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = 'рецепт'
@@ -132,31 +132,36 @@ class Recipe(models.Model):
         ordering = ('-id',)
         default_related_name = 'recipes'
 
+    def __str__(self):
+        return self.name
+
 
 class Amount(models.Model):
-    '''Модель для кол-ва ингридиентов в рецепте'''
+    """Модель для кол-ва ингридиентов в рецепте"""
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='recipe_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
     amount = models.PositiveSmallIntegerField(
-        validators=(MinValueValidator(1),),
+        validators=(MinValueValidator(MIN_AMOUNT),
+                    MaxValueValidator(MAX_AMOUNT)),
         verbose_name='Кол-во ингридиента'
     )
-
-    def __str__(self):
-        return f'{self.recipe} {self.ingredient} {self.amount}'
 
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('amount',)
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
                 name='unique_ingredients')]
 
+    def __str__(self):
+        return f'{self.recipe} {self.ingredient} {self.amount}'
+
 
 class Chosen(models.Model):
-    '''Модель избранных рецептов.'''
+    """Модель избранных рецептов."""
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
@@ -170,17 +175,17 @@ class Chosen(models.Model):
         related_name='favorited'
     )
 
-    def __str__(self):
-        return f'{self.recipe}'
-
     class Meta:
         verbose_name = 'избранный'
         verbose_name_plural = 'Избранные'
         ordering = ('id',)
 
+    def __str__(self):
+        return f'{self.recipe}'
+
 
 class Subscribe(models.Model):
-    '''Модель подписок пользователя.'''
+    """Модель подписок пользователя."""
     author_recipies = models.ForeignKey(
         User,
         verbose_name='Автор рецептов',
@@ -195,9 +200,6 @@ class Subscribe(models.Model):
         related_name='user_subscribe'
     )
 
-    def __str__(self):
-        return f'{self.user} подписан на {self.author_recipies}'
-
     class Meta:
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
@@ -207,9 +209,12 @@ class Subscribe(models.Model):
                 fields=['user', 'author_recipies'],
                 name='unique_subscribes')]
 
+    def __str__(self):
+        return f'{self.user} подписан на {self.author_recipies}'
+
 
 class ShoppingList(models.Model):
-    '''Модель списка покупок.'''
+    """Модель списка покупок."""
     user = models.ForeignKey(
         User,
         verbose_name='Автор рецепта',
@@ -223,10 +228,10 @@ class ShoppingList(models.Model):
         related_name='in_shopping_cart'
     )
 
-    def __str__(self):
-        return f'{self.recipe}'
-
     class Meta:
         verbose_name = 'список покупок'
         verbose_name_plural = 'Списки покупок'
         ordering = ('recipe',)
+
+    def __str__(self):
+        return f'{self.recipe}'
