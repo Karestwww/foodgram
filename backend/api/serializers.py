@@ -1,4 +1,5 @@
 import base64
+from os import read
 
 from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -7,9 +8,10 @@ from rest_framework import serializers
 from rest_framework.serializers import (ImageField, ModelSerializer, IntegerField,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField, ValidationError)
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from backend.settings import MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME
-from recipes.models import Amount, Ingredient, Recipe, Tag, User
+from recipes.models import Amount, Ingredient, Recipe, Subscribe, Tag, User
 
 
 class Base64ImageField(ImageField):
@@ -260,6 +262,45 @@ class CreateRecipeSerializer(ModelSerializer):
         return ret
 
 
+class FavoriteRecipeSerializer(ModelSerializer):
+    """Сериализатор избранных рецептов."""
+    image = Base64ImageField(read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ('name', 'cooking_time')
+    
+    def validate(self, data):
+        recipe = self.context['recipe']
+        user = self.context.get('request').user
+        if (user.favorited.all() & recipe.favorited.all()).exists():
+            raise ValidationError(
+                detail='Рецепт уже в избранном.',
+                code=HTTP_400_BAD_REQUEST)
+        return recipe
+
+
+class ShoppingListSerializer(ModelSerializer):
+    """Сериализатор рецептов для списка покупок."""
+    image = Base64ImageField(read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ('name', 'cooking_time')
+    
+    def validate(self, data):
+        recipe = self.context['recipe']
+        user = self.context.get('request').user
+        if (user.in_shopping_cart.all()
+            & recipe.in_shopping_cart.all()).exists():
+            raise ValidationError(
+                detail='Рецепт уже в списке покупок.',
+                code=HTTP_400_BAD_REQUEST)
+        return recipe
+
+
 class SimpleRecipeSerializer(ModelSerializer):
     """Сериализатор рецептов краткий."""
     image = Base64ImageField()
@@ -274,12 +315,13 @@ class SubscribeSerializer(ModelSerializer):
     is_subscribed = SerializerMethodField()
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(read_only=True)
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count', 'avatar')
+        read_only_fields = ('email', 'username', 'first_name', 'last_name')
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -305,3 +347,17 @@ class SubscribeSerializer(ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+    def validate(self, data):
+        author = self.context['author']
+        user = self.context.get('request').user
+        if (author.author_recipies_subscribe.all()
+            & user.user_subscribe.all()).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны.',
+                code=HTTP_400_BAD_REQUEST)
+        if user == author:
+            raise ValidationError(
+                detail='Не подписывайся на себя.',
+                code=HTTP_400_BAD_REQUEST)
+        return author

@@ -16,9 +16,9 @@ from api.permissions import IsAuthorOrReadOnly
 from api.querysets import shopping_cart_file
 from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
                              IngredientSerializer, RecipeSerializer,
-                             SimpleRecipeSerializer, SubscribeSerializer,
+                             FavoriteRecipeSerializer, SubscribeSerializer,
                              TagSerializer, UserCreateSerializer,
-                             UserSerializer)
+                             UserSerializer, ShoppingListSerializer)
 from backend.settings import DOMAIN
 from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
                             Subscribe, Tag, User)
@@ -56,24 +56,15 @@ class UsersViewSet(ModelViewSet):
             url_path='subscribe')
     def subscribe(self, request, pk=None, *args, **kwargs):
         user = self.request.user
-        author_subscribes = get_object_or_404(User, id=pk)
-
+        author = get_object_or_404(User, id=pk)
         if self.request.method == 'POST':
-            if user == author_subscribes:
-                return Response({'detail': 'Не подписывайся на себя.'},
-                                status=HTTP_400_BAD_REQUEST)
-            elif (author_subscribes.author_recipies_subscribe.all()
-                  & user.user_subscribe.all()).exists():
-                return Response({'detail': 'Вы уже подписаны.'},
-                                status=HTTP_400_BAD_REQUEST)
-            Subscribe.objects.create(user=user,
-                                     author_recipies=author_subscribes)
-            serializer = SubscribeSerializer(author_subscribes,
-                                             context={'request': request})
-            if serializer.is_valid:
-                return Response(serializer.data, status=HTTP_201_CREATED)
-            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
-        subscription = (author_subscribes.author_recipies_subscribe.all()
+            serializer = SubscribeSerializer(data={'author': author},
+                                             context={'request': request,
+                                                      'author': author})
+            serializer.is_valid(raise_exception=True)
+            Subscribe.objects.create(user=user, author_recipies=author)
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        subscription = (author.author_recipies_subscribe.all()
                         & user.user_subscribe.all())
         if not subscription.exists():
             return Response({'detail': 'Вы не подписаны.'},
@@ -94,10 +85,9 @@ class UsersViewSet(ModelViewSet):
     def current_user_avatar(self, request):
         if request.method == 'PUT':
             serializer = AvatarSerializer(request.user, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=HTTP_200_OK)
-            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
         request.user.avatar.delete()
         request.user.avatar = None
         request.user.save()
@@ -108,11 +98,10 @@ class UsersViewSet(ModelViewSet):
     def user_set_password(self, request):
         serializer = SetPasswordSerializer(context={'request': request},
                                            data=request.data)
-        if serializer.is_valid():
-            self.request.user.set_password(serializer.data['new_password'])
-            self.request.user.save()
-            return Response(serializer.data, status=HTTP_204_NO_CONTENT)
-        return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        self.request.user.set_password(serializer.data['new_password'])
+        self.request.user.save()
+        return Response(serializer.data, status=HTTP_204_NO_CONTENT)
 
 
 class TagsViewSet(ModelViewSet):
@@ -165,15 +154,12 @@ class RecipesViewSet(ModelViewSet):
         recipe = get_object_or_404(Recipe, id=pk)
         chosen = user.favorited.all() & recipe.favorited.all()
         if self.request.method == 'POST':
-            if chosen.exists():
-                return Response({'detail': 'Рецепт уже в избранном.'},
-                                status=HTTP_400_BAD_REQUEST)
+            serializer = FavoriteRecipeSerializer(data={'recipe': recipe},
+                                                  context={'request': request,
+                                                           'recipe': recipe})
+            serializer.is_valid(raise_exception=True)
             Chosen.objects.update_or_create(user=user, recipe=recipe)
-            serializer = SimpleRecipeSerializer(recipe,
-                                                context={'request': request})
-            if serializer.is_valid:
-                return Response(serializer.data, status=HTTP_201_CREATED)
-            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=HTTP_201_CREATED)
         if not chosen.exists():
             return Response({'detail': 'Рецепт не в избранном.'},
                             status=HTTP_400_BAD_REQUEST)
@@ -189,15 +175,12 @@ class RecipesViewSet(ModelViewSet):
         recipe = get_object_or_404(Recipe, id=pk)
         list = user.in_shopping_cart.all() & recipe.in_shopping_cart.all()
         if self.request.method == 'POST':
-            if list.exists():
-                return Response({'detail': 'Рецепт уже в списке покупок.'},
-                                status=HTTP_400_BAD_REQUEST)
+            serializer = ShoppingListSerializer(data={'recipe': recipe},
+                                                context={'request': request,
+                                                         'recipe': recipe})
+            serializer.is_valid(raise_exception=True)
             ShoppingList.objects.update_or_create(user=user, recipe=recipe)
-            serializer = SimpleRecipeSerializer(recipe,
-                                                context={'request': request})
-            if serializer.is_valid:
-                return Response(serializer.data, status=HTTP_201_CREATED)
-            return Response(serializer.data, status=HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=HTTP_201_CREATED)
         if not list.exists():
             return Response({'detail': 'Рецепт не в списке покупок.'},
                             status=HTTP_400_BAD_REQUEST)
