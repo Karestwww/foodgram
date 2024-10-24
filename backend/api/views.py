@@ -15,10 +15,10 @@ from api.paginators import StandardResultsSetPagination
 from api.permissions import IsAuthorOrReadOnly
 from api.querysets import shopping_cart_file
 from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
-                             IngredientSerializer, RecipeSerializer,
-                             FavoriteRecipeSerializer, SubscribeSerializer,
-                             TagSerializer, UserCreateSerializer,
-                             UserSerializer, ShoppingListSerializer)
+                             FavoriteRecipeSerializer, IngredientSerializer,
+                             RecipeSerializer, ShoppingListSerializer,
+                             SubscribeSerializer, TagSerializer,
+                             UserCreateSerializer, UserSerializer)
 from backend.settings import DOMAIN
 from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
                             Subscribe, Tag, User)

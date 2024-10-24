@@ -1,9 +1,11 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from backend.settings import MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME
+from backend.settings import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
+                              MIN_COOKING_TIME)
 
 
 class User(AbstractUser):

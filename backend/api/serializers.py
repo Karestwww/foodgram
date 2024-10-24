@@ -1,17 +1,18 @@
 import base64
-from os import read
 
 from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.serializers import (ImageField, ModelSerializer, IntegerField,
+from rest_framework.serializers import (ImageField, IntegerField,
+                                        ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField, ValidationError)
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from backend.settings import MIN_AMOUNT, MAX_AMOUNT, MIN_COOKING_TIME, MAX_COOKING_TIME
-from recipes.models import Amount, Ingredient, Recipe, Subscribe, Tag, User
+from backend.settings import (MAX_AMOUNT, MAX_COOKING_TIME, MIN_AMOUNT,
+                              MIN_COOKING_TIME)
+from recipes.models import Amount, Ingredient, Recipe, Tag, User
 
 
 class Base64ImageField(ImageField):
@@ -51,13 +52,13 @@ class UserSerializer(ModelSerializer):
         user = request.user
         if user.is_anonymous:
             return False
-        return (
-            user.user_subscribe.all() & obj.author_recipies_subscribe.all()
-            ).exists()
+        return (user.user_subscribe.all()
+                & obj.author_recipies_subscribe.all()).exists()
         # другие варианты, но уже с фильтрами:
         # return user.user_subscribe.filter(author_recipies=obj).exists()
         # return obj.user_subscribe.filter(author_recipies=user).exists()
-        # return Subscribe.objects.filter(user=user,author_recipies=obj).exists()
+        # return Subscribe.objects.filter(user=user,
+        #                                 author_recipies=obj).exists()
 
 
 class UserCreateSerializer(ModelSerializer):
@@ -146,9 +147,8 @@ class RecipeSerializer(ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return (
-            user.in_shopping_cart.all() & obj.in_shopping_cart.all()
-            ).exists()
+        return (user.in_shopping_cart.all()
+                & obj.in_shopping_cart.all()).exists()
 
 
 class AmountCreateRecipeSerializer(ModelSerializer):
@@ -270,7 +270,7 @@ class FavoriteRecipeSerializer(ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
         read_only_fields = ('name', 'cooking_time')
-    
+
     def validate(self, data):
         recipe = self.context['recipe']
         user = self.context.get('request').user
@@ -289,12 +289,12 @@ class ShoppingListSerializer(ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
         read_only_fields = ('name', 'cooking_time')
-    
+
     def validate(self, data):
         recipe = self.context['recipe']
         user = self.context.get('request').user
         if (user.in_shopping_cart.all()
-            & recipe.in_shopping_cart.all()).exists():
+           & recipe.in_shopping_cart.all()).exists():
             raise ValidationError(
                 detail='Рецепт уже в списке покупок.',
                 code=HTTP_400_BAD_REQUEST)
@@ -330,9 +330,8 @@ class SubscribeSerializer(ModelSerializer):
         user = request.user
         if user.is_anonymous:
             return False
-        return (
-            user.user_subscribe.all() & obj.author_recipies_subscribe.all()
-            ).exists()
+        return (user.user_subscribe.all()
+                & obj.author_recipies_subscribe.all()).exists()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -352,7 +351,7 @@ class SubscribeSerializer(ModelSerializer):
         author = self.context['author']
         user = self.context.get('request').user
         if (author.author_recipies_subscribe.all()
-            & user.user_subscribe.all()).exists():
+           & user.user_subscribe.all()).exists():
             raise ValidationError(
                 detail='Вы уже подписаны.',
                 code=HTTP_400_BAD_REQUEST)
