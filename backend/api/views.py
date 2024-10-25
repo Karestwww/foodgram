@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
@@ -19,7 +20,6 @@ from api.serializers import (AvatarSerializer, CreateRecipeSerializer,
                              RecipeSerializer, ShoppingListSerializer,
                              SubscribeSerializer, TagSerializer,
                              UserCreateSerializer, UserSerializer)
-from backend.settings import DOMAIN
 from recipes.models import (Chosen, Ingredient, Recipe, ShoppingList,
                             Subscribe, Tag, User)
 
@@ -64,8 +64,7 @@ class UsersViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             Subscribe.objects.create(user=user, author_recipies=author)
             return Response(serializer.data, status=HTTP_201_CREATED)
-        subscription = (author.author_recipies_subscribe.all()
-                        & user.user_subscribe.all())
+        subscription = user.user_subscribe.filter(author_recipies=author)
         if not subscription.exists():
             return Response({'detail': 'Вы не подписаны.'},
                             status=HTTP_400_BAD_REQUEST)
@@ -115,7 +114,7 @@ class TagsViewSet(ModelViewSet):
 
 
 class IngredientsViewSet(ModelViewSet):
-    """Модель get запросов для получения списка ингридиентов."""
+    """Модель get запросов для получения списка ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     http_method_names = ['get']
@@ -142,7 +141,7 @@ class RecipesViewSet(ModelViewSet):
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
-        url = f'{DOMAIN}/recipes/{recipe.id}/'
+        url = f'{settings.DOMAIN}/recipes/{recipe.id}/'
         return Response({'short-link': url}, status=HTTP_200_OK)
 
     @action(methods=['post', 'delete'],
@@ -152,7 +151,7 @@ class RecipesViewSet(ModelViewSet):
     def favorite(self, request, pk=None, *args, **kwargs):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        chosen = user.favorited.all() & recipe.favorited.all()
+        chosen = user.favorited.filter(recipe=recipe)
         if self.request.method == 'POST':
             serializer = FavoriteRecipeSerializer(data={'recipe': recipe},
                                                   context={'request': request,
@@ -173,7 +172,7 @@ class RecipesViewSet(ModelViewSet):
     def shopping_list(self, request, pk=None, *args, **kwargs):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        list = user.in_shopping_cart.all() & recipe.in_shopping_cart.all()
+        list = user.in_shopping_cart.filter(recipe=recipe)
         if self.request.method == 'POST':
             serializer = ShoppingListSerializer(data={'recipe': recipe},
                                                 context={'request': request,

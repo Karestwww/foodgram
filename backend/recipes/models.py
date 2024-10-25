@@ -139,14 +139,14 @@ class Recipe(models.Model):
 
 
 class Amount(models.Model):
-    """Модель для кол-ва ингридиентов в рецепте"""
+    """Модель для кол-ва ингредиентов в рецепте"""
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='recipe_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
     amount = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(MIN_AMOUNT),
                     MaxValueValidator(MAX_AMOUNT)),
-        verbose_name='Кол-во ингридиента'
+        verbose_name='Кол-во ингредиента'
     )
 
     class Meta:
