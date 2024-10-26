@@ -13,11 +13,14 @@ MAX_COOKING_TIME = 32000
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'SECRET_KEY')
 
-DEBUG = os.getenv('DEBUG', 'True')
+DEBUG = os.getenv('DEBUG', 'True').lower()
 
-DOMAIN = 'karestwww.hopto.org'
+DOMAIN = os.getenv('WEBSITE', 'karestwww.hopto.org')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 84.201.163.110 localhost karestwww.hopto.org').split()
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    '127.0.0.1 84.201.163.110 localhost karestwww.hopto.org'
+    ).split()
 
 INSTALLED_APPS = [
     'django.contrib.admin',
